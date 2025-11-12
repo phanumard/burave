@@ -472,32 +472,27 @@
                         const data = result.data;
                         
                         if (data) {
-                            let updated = false;
+                            let imageFound = false;
+                            let descriptionFound = false;
                             
                             if (data.image?.url || data.logo?.url) {
                                 document.getElementById('image').value = data.image?.url || data.logo?.url;
-                                updated = true;
+                                imageFound = true;
                                 console.log('Image found:', data.image?.url || data.logo?.url);
                                 addDebugMessage(`ภาพ: ${data.image?.url || data.logo?.url}`, 'success');
                             }
-                            if (data.title) {
-                                document.getElementById('title').value = data.title;
-                                updated = true;
-                                console.log('Title found:', data.title);
-                                addDebugMessage(`ชื่อ: ${data.title}`, 'success');
-                            }
+                            
                             if (data.description) {
                                 document.getElementById('keysum').value = data.description;
-                                updated = true;
+                                descriptionFound = true;
                                 console.log('Description found:', data.description);
                                 addDebugMessage(`คำอธิบาย: ${data.description.substring(0, 50)}...`, 'success');
                             }
                             
-                            if (updated) {
-                                updateOutputs();
-                                console.log('✅ Successfully fetched metadata from Microlink');
-                                addDebugMessage('ดึงข้อมูลสำเร็จจาก Microlink API', 'success');
-                                return;
+                            // For title, need to get h1 from actual HTML - continue to AllOrigins
+                            if (imageFound || descriptionFound) {
+                                console.log('Got image/description from Microlink, will get h1 from HTML');
+                                addDebugMessage('ได้ภาพ/คำอธิบายแล้ว กำลังดึง h1 จาก HTML...', 'info');
                             }
                         }
                     }
@@ -506,7 +501,7 @@
                     addDebugMessage(`Microlink API ล้มเหลว: ${e.message}`, 'error');
                 }
 
-                // Try Method 2: LinkPreview API (No API key needed for free tier)
+                // Try Method 2: LinkPreview API for image and description
                 try {
                     console.log('Trying LinkPreview API...');
                     addDebugMessage('ลองใช้ LinkPreview API...');
@@ -521,32 +516,15 @@
                         const data = await response.json();
                         console.log('LinkPreview data:', data);
                         
-                        let updated = false;
-                        
-                        if (data.image) {
+                        if (data.image && !document.getElementById('image').value) {
                             document.getElementById('image').value = data.image;
-                            updated = true;
                             console.log('Image found:', data.image);
                             addDebugMessage(`ภาพ: ${data.image}`, 'success');
                         }
-                        if (data.title) {
-                            document.getElementById('title').value = data.title;
-                            updated = true;
-                            console.log('Title found:', data.title);
-                            addDebugMessage(`ชื่อ: ${data.title}`, 'success');
-                        }
-                        if (data.description) {
+                        if (data.description && !document.getElementById('keysum').value) {
                             document.getElementById('keysum').value = data.description;
-                            updated = true;
                             console.log('Description found:', data.description);
                             addDebugMessage(`คำอธิบาย: ${data.description.substring(0, 50)}...`, 'success');
-                        }
-                        
-                        if (updated) {
-                            updateOutputs();
-                            console.log('✅ Successfully fetched metadata from LinkPreview');
-                            addDebugMessage('ดึงข้อมูลสำเร็จจาก LinkPreview API', 'success');
-                            return;
                         }
                     }
                 } catch (e) {
@@ -554,7 +532,7 @@
                     addDebugMessage(`LinkPreview API ล้มเหลว: ${e.message}`, 'error');
                 }
 
-                // Try Method 3: Open Graph Scraper via AllOrigins
+                // ALWAYS try Method 3: AllOrigins to get h1 tag for title
                 try {
                     console.log('Trying AllOrigins proxy...');
                     addDebugMessage('ลองใช้ AllOrigins Proxy...');
@@ -575,28 +553,34 @@
                         
                         let updated = false;
                         
-                        const ogImage = doc.querySelector('meta[property="og:image"]')?.content || 
-                                       doc.querySelector('meta[name="twitter:image"]')?.content;
+                        // Get h1 first (priority), then fallback to other sources
+                        const h1Text = doc.querySelector('h1')?.textContent?.trim();
                         const ogTitle = doc.querySelector('meta[property="og:title"]')?.content || 
                                        doc.querySelector('meta[name="twitter:title"]')?.content ||
                                        doc.querySelector('title')?.textContent;
+                        
+                        const titleToUse = h1Text || ogTitle;
+                        
+                        const ogImage = doc.querySelector('meta[property="og:image"]')?.content || 
+                                       doc.querySelector('meta[name="twitter:image"]')?.content;
                         const ogDescription = doc.querySelector('meta[property="og:description"]')?.content ||
                                              doc.querySelector('meta[name="twitter:description"]')?.content ||
                                              doc.querySelector('meta[name="description"]')?.content;
                         
-                        if (ogImage) {
+                        if (ogImage && !document.getElementById('image').value) {
                             document.getElementById('image').value = ogImage;
                             updated = true;
                             console.log('Image found:', ogImage);
                             addDebugMessage(`ภาพ: ${ogImage}`, 'success');
                         }
-                        if (ogTitle) {
-                            document.getElementById('title').value = ogTitle;
+                        if (titleToUse) {
+                            document.getElementById('title').value = titleToUse;
                             updated = true;
-                            console.log('Title found:', ogTitle);
-                            addDebugMessage(`ชื่อ: ${ogTitle}`, 'success');
+                            const source = h1Text ? 'h1' : 'meta';
+                            console.log(`Title found from ${source}:`, titleToUse);
+                            addDebugMessage(`ชื่อ (จาก ${source}): ${titleToUse}`, 'success');
                         }
-                        if (ogDescription) {
+                        if (ogDescription && !document.getElementById('keysum').value) {
                             document.getElementById('keysum').value = ogDescription;
                             updated = true;
                             console.log('Description found:', ogDescription);
@@ -615,9 +599,20 @@
                     addDebugMessage(`AllOrigins Proxy ล้มเหลว: ${e.message}`, 'error');
                 }
 
-                console.log('❌ All methods failed');
-                addDebugMessage('ทุกวิธีล้มเหลว - กรุณากรอกข้อมูลเอง', 'error');
-                alert('ไม่สามารถดึงข้อมูลจาก URL ได้\n\nเหตุผลที่เป็นไปได้:\n1. เว็บไซต์ไม่มี Open Graph meta tags\n2. เว็บไซต์บล็อค API requests\n3. API มี rate limit\n\nกรุณากรอกข้อมูลด้วยตนเอง');
+                // Check if we got any data at all before showing error
+                const hasImage = document.getElementById('image').value;
+                const hasTitle = document.getElementById('title').value;
+                const hasDescription = document.getElementById('keysum').value;
+                
+                if (hasImage || hasTitle || hasDescription) {
+                    updateOutputs();
+                    addDebugMessage('ดึงข้อมูลบางส่วนสำเร็จ', 'success');
+                    return;
+                }
+
+                console.log('❌ All methods failed - no data retrieved');
+                addDebugMessage('❌ ทุกวิธีล้มเหลว - กรุณากรอกข้อมูลเอง', 'error');
+                alert('ไม่สามารถดึงข้อมูลจาก URL ได้\n\nเหตุผลที่เป็นไปได้:\n1. เว็บไซต์ไม่มี h1 หรือ meta tags\n2. เว็บไซต์บล็อค API requests\n3. API มี rate limit\n\nกรุณากรอกข้อมูลด้วยตนเอง\n\nดู Debug Info ด้านล่างสำหรับข้อมูลเพิ่มเติม');
                 
             } finally {
                 isLoading = false;
