@@ -226,15 +226,54 @@
                     "type": "bubble",
                     "size": "giga",
                     "hero": {
-                        "type": "image",
-                        "url": getImageUrl(data.image),
-                        "size": "full",
-                        "aspectRatio": "20:14",
-                        "aspectMode": "cover",
-                        "action": {
-                            "type": "uri",
-                            "uri": getWebLinkWithUTM(data.weblink)
-                        }
+                        "type": "box",
+                        "layout": "vertical",
+                        "contents": [
+                            {
+                                "type": "image",
+                                "url": getImageUrl(data.image),
+                                "size": "full",
+                                "aspectRatio": "20:14",
+                                "aspectMode": "cover",
+                                "action": {
+                                    "type": "uri",
+                                    "uri": getWebLinkWithUTM(data.weblink)
+                                }
+                            },
+                            {
+                                "type": "box",
+                                "layout": "vertical",
+                                "contents": [],
+                                "position": "absolute",
+                                "background": {
+                                    "type": "linearGradient",
+                                    "angle": "0deg",
+                                    "startColor": "#00000000",
+                                    "endColor": "#000000CC"
+                                },
+                                "width": "100%",
+                                "height": "100%",
+                                "offsetBottom": "0px",
+                                "offsetStart": "0px",
+                                "offsetEnd": "0px"
+                            },
+                            {
+                                "type": "box",
+                                "layout": "vertical",
+                                "contents": [
+                                    {
+                                        "type": "image",
+                                        "url": "https://phanumard.github.io/burave/eic-logo-black.png",
+                                        "size": "xs",
+                                        "align": "end"
+                                    }
+                                ],
+                                "position": "absolute",
+                                "offsetTop": "50px",
+                                "offsetEnd": "50px",
+                                "width": "80px"
+                            }
+                        ]
                     },
                     "body": {
                         "type": "box",
@@ -319,15 +358,54 @@
                     "type": "bubble",
                     "size": "giga",
                     "hero": {
-                        "type": "image",
-                        "url": getImageUrl(data.image),
-                        "size": "full",
-                        "aspectRatio": "25:28",
-                        "aspectMode": "cover",
-                        "action": {
-                            "type": "uri",
-                            "uri": getWebLinkWithUTM(data.weblink)
-                        }
+                        "type": "box",
+                        "layout": "vertical",
+                        "contents": [
+                            {
+                                "type": "image",
+                                "url": getImageUrl(data.image),
+                                "size": "full",
+                                "aspectRatio": "25:28",
+                                "aspectMode": "cover",
+                                "action": {
+                                    "type": "uri",
+                                    "uri": getWebLinkWithUTM(data.weblink)
+                                }
+                            },
+                            {
+                                "type": "box",
+                                "layout": "vertical",
+                                "contents": [],
+                                "position": "absolute",
+                                "background": {
+                                    "type": "linearGradient",
+                                    "angle": "0deg",
+                                    "startColor": "#00000000",
+                                    "endColor": "#000000CC"
+                                },
+                                "width": "100%",
+                                "height": "100%",
+                                "offsetBottom": "0px",
+                                "offsetStart": "0px",
+                                "offsetEnd": "0px"
+                            },
+                            {
+                                "type": "box",
+                                "layout": "vertical",
+                                "contents": [
+                                    {
+                                        "type": "image",
+                                        "url": "https://phanumard.github.io/burave/eic-logo-black.png",
+                                        "size": "xs",
+                                        "align": "end"
+                                    }
+                                ],
+                                "position": "absolute",
+                                "offsetTop": "50px",
+                                "offsetEnd": "50px",
+                                "width": "80px"
+                            }
+                        ]
                     },
                     "footer": {
                         "type": "box",
@@ -393,6 +471,12 @@
                             class="absolute inset-0 w-full h-full object-cover"
                             onerror="this.style.display='none'; this.parentElement.innerHTML='<div class=\\'absolute inset-0 flex items-center justify-center text-gray-400\\'>Image Preview</div>';"
                         />
+                        <!-- Gradient Overlay -->
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent"></div>
+                        <!-- Logo -->
+                        <div class="absolute top-[50px] right-[50px] w-20">
+                            <img src="https://phanumard.github.io/burave/eic-logo-black.png" alt="EIC Logo" class="w-full" />
+                        </div>
                     ` : `
                         <div class="absolute inset-0 flex items-center justify-center text-gray-400">
                             Image Preview
