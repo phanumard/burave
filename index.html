@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LINE Flex Message Generator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: .5; }
+        }
+        .animate-pulse {
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-gradient-to-br from-purple-50 to-blue-50">
+    <div class="p-8">
+        <div class="max-w-6xl mx-auto">
+            <!-- Header -->
+            <div class="text-center mb-8">
+                <h1 class="text-4xl font-bold text-gray-800 mb-2">LINE Flex Message Generator</h1>
+                <p class="text-gray-600">กรอกข้อมูลเพื่อสร้าง Flex Message JSON</p>
+            </div>
+
+            <!-- Template Type Selector -->
+            <div class="mb-8 flex justify-center">
+                <div class="bg-white rounded-lg shadow-lg p-2 inline-flex gap-2">
+                    <button id="btnArticle" class="px-8 py-3 rounded-lg font-semibold transition-all bg-purple-600 text-white shadow-md">
+                        Article
+                    </button>
+                    <button id="btnOutlook" class="px-8 py-3 rounded-lg font-semibold transition-all bg-gray-100 text-gray-600 hover:bg-gray-200">
+                        Outlook
+                    </button>
+                </div>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-8">
+                <!-- Form Section -->
+                <div class="bg-white rounded-lg shadow-lg p-6">
+                    <h2 class="text-2xl font-semibold mb-6 text-gray-800">กรอกข้อมูล</h2>
+                    
+                    <div class="space-y-4">
+                        <!-- Web Link -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                Web Link
+                                <span id="loadingIndicator" class="ml-2 text-xs text-blue-600 animate-pulse hidden">⏳ กำลังดึงข้อมูล...</span>
+                            </label>
+                            <div class="flex gap-2">
+                                <input
+                                    type="url"
+                                    id="weblink"
+                                    placeholder="https://example.com/article"
+                                    class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                                />
+                                <button
+                                    type="button"
+                                    id="btnRefresh"
+                                    class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
+                                    title="ดึงข้อมูลใหม่"
+                                >
+                                    🔄
+                                </button>
+                            </div>
+                            <p class="text-xs text-gray-500 mt-1">
+                                📌 ระบบจะดึงภาพหน้าปก, ชื่อบทความ และคำอธิบายอัตโนมัติ
+                            </p>
+                        </div>
+
+                        <!-- Title -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Title</label>
+                            <input
+                                type="text"
+                                id="title"
+                                placeholder="จะดึงอัตโนมัติจาก Web Link หรือกรอกเอง"
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                            />
+                            <p class="text-xs text-gray-500 mt-1">✏️ แก้ไขได้ตามต้องการ</p>
+                        </div>
+
+                        <!-- Image URL -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Image URL</label>
+                            <input
+                                type="text"
+                                id="image"
+                                placeholder="จะดึงอัตโนมัติจาก Web Link หรือใส่ URL / ชื่อไฟล์เอง"
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                            />
+                            <p class="text-xs text-gray-500 mt-1">
+                                🖼️ ดึงอัตโนมัติจาก Web Link หรือใส่ URL เต็ม / ชื่อไฟล์ใน GitHub
+                            </p>
+                        </div>
+
+                        <!-- Date -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Date</label>
+                            <input
+                                type="text"
+                                id="date"
+                                placeholder="01042025"
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-gray-50"
+                            />
+                            <p class="text-xs text-gray-500 mt-1">
+                                รูปแบบ: DDMMYYYY (ตั้งค่าอัตโนมัติเป็นวันที่ปัจจุบัน)
+                            </p>
+                        </div>
+
+                        <!-- Key Summary (Article only) -->
+                        <div id="keysumContainer">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Key Summary</label>
+                            <textarea
+                                id="keysum"
+                                placeholder="จะดึงอัตโนมัติจาก Web Link หรือกรอกเอง"
+                                rows="4"
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-none"
+                            ></textarea>
+                            <p class="text-xs text-gray-500 mt-1">
+                                📝 สรุปสั้นๆ ของบทความ (ดึงจาก meta description)
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Output Section -->
+                <div class="bg-white rounded-lg shadow-lg p-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-2xl font-semibold text-gray-800">JSON Output</h2>
+                        <button
+                            id="btnCopy"
+                            class="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
+                        >
+                            <i data-lucide="copy" class="w-4 h-4"></i>
+                            <span id="copyText">Copy</span>
+                        </button>
+                    </div>
+                    
+                    <div class="bg-gray-900 rounded-lg p-4 overflow-auto max-h-[600px]">
+                        <pre id="jsonOutput" class="text-green-400 text-sm font-mono"></pre>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Preview Section -->
+            <div class="mt-8 bg-white rounded-lg shadow-lg p-6">
+                <h2 class="text-2xl font-semibold mb-4 text-gray-800">Preview</h2>
+                <div class="flex justify-center">
+                    <div id="previewCard" class="w-full max-w-sm bg-white border border-gray-200 rounded-lg overflow-hidden shadow-md">
+                        <!-- Preview will be rendered here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize Lucide icons
+        lucide.createIcons();
+
+        // State management
+        let templateType = 'article';
+        let isLoading = false;
+
+        // Get today's date in DDMMYYYY format
+        function getTodayDate() {
+            const today = new Date();
+            const day = String(today.getDate()).padStart(2, '0');
+            const month = String(today.getMonth() + 1).padStart(2, '0');
+            const year = today.getFullYear();
+            return `${day}${month}${year}`;
+        }
+
+        // Initialize date
+        document.getElementById('date').value = getTodayDate();
+
+        // Get form data
+        function getFormData() {
+            return {
+                title: document.getElementById('title').value || '[title]',
+                image: document.getElementById('image').value || '[image]',
+                weblink: document.getElementById('weblink').value || '[weblink]',
+                keysum: document.getElementById('keysum').value || '[keysum]',
+                date: document.getElementById('date').value || '[date]'
+            };
+        }
+
+        // Get image URL
+        function getImageUrl(image) {
+            if (!image || image === '[image]') return '[image]';
+            if (image.startsWith('http')) return image;
+            return `https://raw.githubusercontent.com/scbeic/sharetarget2/main/${image}`;
+        }
+
+        // Get weblink with UTM
+        function getWebLinkWithUTM(weblink) {
+            if (!weblink || weblink === '[weblink]') return '[weblink]';
+            const utmParams = '?utm_source=EIC_LINEOA&utm_medium=EIC_LINEOA';
+            return weblink.includes('?') 
+                ? weblink + '&utm_source=EIC_LINEOA&utm_medium=EIC_LINEOA'
+                : weblink + utmParams;
+        }
+
+        // Generate Article JSON
+        function generateArticleJSON(data) {
+            return [{
+                "type": "flex",
+                "altText": data.title,
+                "contents": {
+                    "type": "bubble",
+                    "size": "giga",
+                    "hero": {
+                        "type": "image",
+                        "url": getImageUrl(data.image),
+                        "size": "full",
+                        "aspectRatio": "20:14",
+                        "aspectMode": "cover",
+                        "action": {
+                            "type": "uri",
+                            "uri": getWebLinkWithUTM(data.weblink)
+                        }
+                    },
+                    "body": {
+                        "type": "box",
+                        "layout": "vertical",
+                        "contents": [
+                            {
+                                "type": "text",
+                                "text": "Key summary",
+                                "weight": "bold",
+                                "size": "lg"
+                            },
+                            {
+                                "type": "box",
+                                "layout": "vertical",
+                                "margin": "lg",
+                                "spacing": "sm",
+                                "contents": [
+                                    {
+                                        "type": "box",
+                                        "layout": "baseline",
+                                        "spacing": "sm",
+                                        "contents": [
+                                            {
+                                                "type": "text",
+                                                "text": data.keysum,
+                                                "wrap": true,
+                                                "color": "#666666",
+                                                "size": "sm",
+                                                "flex": 5
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    "footer": {
+                        "type": "box",
+                        "layout": "vertical",
+                        "spacing": "sm",
+                        "contents": [
+                            {
+                                "type": "button",
+                                "style": "primary",
+                                "height": "sm",
+                                "action": {
+                                    "type": "uri",
+                                    "label": "Read more",
+                                    "uri": getWebLinkWithUTM(data.weblink)
+                                },
+                                "color": "#4e2e79"
+                            },
+                            {
+                                "type": "button",
+                                "style": "secondary",
+                                "height": "sm",
+                                "action": {
+                                    "type": "uri",
+                                    "label": "Share",
+                                    "uri": `https://liff.line.me/1657155025-N4RBzQGX?messages=https://raw.githubusercontent.com/scbeic/sharetarget2/main/messages${data.date}.json`
+                                }
+                            },
+                            {
+                                "type": "box",
+                                "layout": "vertical",
+                                "contents": [],
+                                "margin": "sm"
+                            }
+                        ],
+                        "flex": 0
+                    }
+                }
+            }];
+        }
+
+        // Generate Outlook JSON
+        function generateOutlookJSON(data) {
+            return [{
+                "type": "flex",
+                "altText": data.title,
+                "contents": {
+                    "type": "bubble",
+                    "size": "giga",
+                    "hero": {
+                        "type": "image",
+                        "url": getImageUrl(data.image),
+                        "size": "full",
+                        "aspectRatio": "25:28",
+                        "aspectMode": "cover",
+                        "action": {
+                            "type": "uri",
+                            "uri": getWebLinkWithUTM(data.weblink)
+                        }
+                    },
+                    "footer": {
+                        "type": "box",
+                        "layout": "vertical",
+                        "spacing": "sm",
+                        "contents": [
+                            {
+                                "type": "button",
+                                "style": "primary",
+                                "height": "sm",
+                                "action": {
+                                    "type": "uri",
+                                    "label": "Read more",
+                                    "uri": data.weblink
+                                },
+                                "color": "#bd8c66"
+                            },
+                            {
+                                "type": "button",
+                                "style": "secondary",
+                                "height": "sm",
+                                "action": {
+                                    "type": "uri",
+                                    "label": "Share",
+                                    "uri": `https://liff.line.me/1657155025-N4RBzQGX?messages=https://raw.githubusercontent.com/scbeic/sharetarget2/main/messages${data.date}.json`
+                                }
+                            },
+                            {
+                                "type": "box",
+                                "layout": "vertical",
+                                "contents": [],
+                                "margin": "sm"
+                            }
+                        ],
+                        "flex": 0,
+                        "backgroundColor": "#1f172b"
+                    }
+                }
+            }];
+        }
+
+        // Generate JSON output
+        function generateJSON() {
+            const data = getFormData();
+            const json = templateType === 'article' 
+                ? generateArticleJSON(data) 
+                : generateOutlookJSON(data);
+            return JSON.stringify(json, null, 2);
+        }
+
+        // Update preview
+        function updatePreview() {
+            const data = getFormData();
+            const imageUrl = getImageUrl(data.image);
+            const aspectRatio = templateType === 'article' ? '70%' : '112%';
+            
+            let html = `
+                <div class="relative bg-gray-200" style="padding-bottom: ${aspectRatio}">
+                    ${data.image !== '[image]' ? `
+                        <img 
+                            src="${imageUrl}"
+                            alt="${data.title}"
+                            class="absolute inset-0 w-full h-full object-cover"
+                            onerror="this.style.display='none'; this.parentElement.innerHTML='<div class=\\'absolute inset-0 flex items-center justify-center text-gray-400\\'>Image Preview</div>';"
+                        />
+                    ` : `
+                        <div class="absolute inset-0 flex items-center justify-center text-gray-400">
+                            Image Preview
+                        </div>
+                    `}
+                </div>
+            `;
+
+            if (templateType === 'article') {
+                html += `
+                    <div class="p-4">
+                        <h3 class="font-bold text-lg mb-3">Key summary</h3>
+                        <p class="text-gray-600 text-sm">${data.keysum}</p>
+                    </div>
+                `;
+            }
+
+            const bgColor = templateType === 'outlook' ? 'bg-gray-900' : '';
+            const btnColor = templateType === 'article' ? 'bg-purple-700 hover:bg-purple-800' : 'bg-amber-700 hover:bg-amber-800';
+            
+            html += `
+                <div class="p-4 space-y-2 ${bgColor}">
+                    <button class="w-full py-2 text-white rounded font-medium transition-colors ${btnColor}">
+                        Read more
+                    </button>
+                    <button class="w-full py-2 bg-gray-200 text-gray-700 rounded font-medium hover:bg-gray-300 transition-colors">
+                        Share
+                    </button>
+                </div>
+            `;
+
+            document.getElementById('previewCard').innerHTML = html;
+        }
+
+        // Update all outputs
+        function updateOutputs() {
+            document.getElementById('jsonOutput').textContent = generateJSON();
+            updatePreview();
+        }
+
+        // Fetch metadata from URL
+        async function fetchMetadata(url) {
+            if (!url || !url.startsWith('http')) return;
+            
+            isLoading = true;
+            document.getElementById('loadingIndicator').classList.remove('hidden');
+            document.getElementById('btnRefresh').disabled = true;
+
+            try {
+                // Try Method 1: Microlink API
+                try {
+                    const microlinkUrl = `https://api.microlink.io?url=${encodeURIComponent(url)}`;
+                    const response = await fetch(microlinkUrl);
+                    
+                    if (response.ok) {
+                        const result = await response.json();
+                        const data = result.data;
+                        
+                        if (data) {
+                            if (data.image?.url || data.logo?.url) {
+                                document.getElementById('image').value = data.image?.url || data.logo?.url;
+                            }
+                            if (data.title) {
+                                document.getElementById('title').value = data.title;
+                            }
+                            if (data.description) {
+                                document.getElementById('keysum').value = data.description;
+                            }
+                            updateOutputs();
+                            return;
+                        }
+                    }
+                } catch (e) {
+                    console.log('Microlink API failed, trying next method...');
+                }
+
+                // Try Method 2: JSONLINK API
+                try {
+                    const jsonlinkUrl = `https://jsonlink.io/api/extract?url=${encodeURIComponent(url)}`;
+                    const response = await fetch(jsonlinkUrl);
+                    
+                    if (response.ok) {
+                        const data = await response.json();
+                        
+                        const image = data.images?.[0] || data.og?.image || data.twitter?.image;
+                        const title = data.title || data.og?.title || data.twitter?.title;
+                        const description = data.description || data.og?.description || data.twitter?.description;
+                        
+                        if (image) document.getElementById('image').value = image;
+                        if (title) document.getElementById('title').value = title;
+                        if (description) document.getElementById('keysum').value = description;
+                        
+                        updateOutputs();
+                        return;
+                    }
+                } catch (e) {
+                    console.log('JSONLINK API failed');
+                }
+
+                alert('ไม่สามารถดึงข้อมูลจาก URL ได้\nกรุณากรอกข้อมูลด้วยตนเอง');
+                
+            } finally {
+                isLoading = false;
+                document.getElementById('loadingIndicator').classList.add('hidden');
+                document.getElementById('btnRefresh').disabled = false;
+            }
+        }
+
+        // Event listeners
+        document.getElementById('btnArticle').addEventListener('click', function() {
+            templateType = 'article';
+            this.className = 'px-8 py-3 rounded-lg font-semibold transition-all bg-purple-600 text-white shadow-md';
+            document.getElementById('btnOutlook').className = 'px-8 py-3 rounded-lg font-semibold transition-all bg-gray-100 text-gray-600 hover:bg-gray-200';
+            document.getElementById('keysumContainer').style.display = 'block';
+            updateOutputs();
+        });
+
+        document.getElementById('btnOutlook').addEventListener('click', function() {
+            templateType = 'outlook';
+            this.className = 'px-8 py-3 rounded-lg font-semibold transition-all bg-amber-600 text-white shadow-md';
+            document.getElementById('btnArticle').className = 'px-8 py-3 rounded-lg font-semibold transition-all bg-gray-100 text-gray-600 hover:bg-gray-200';
+            document.getElementById('keysumContainer').style.display = 'none';
+            updateOutputs();
+        });
+
+        document.getElementById('weblink').addEventListener('input', function(e) {
+            if (e.target.value) {
+                fetchMetadata(e.target.value);
+            }
+        });
+
+        document.getElementById('btnRefresh').addEventListener('click', function() {
+            const url = document.getElementById('weblink').value;
+            if (url) {
+                fetchMetadata(url);
+            }
+        });
+
+        document.getElementById('title').addEventListener('input', updateOutputs);
+        document.getElementById('image').addEventListener('input', updateOutputs);
+        document.getElementById('date').addEventListener('input', updateOutputs);
+        document.getElementById('keysum').addEventListener('input', updateOutputs);
+
+        document.getElementById('btnCopy').addEventListener('click', function() {
+            const jsonOutput = generateJSON();
+            navigator.clipboard.writeText(jsonOutput).then(() => {
+                const icon = this.querySelector('i');
+                const text = document.getElementById('copyText');
+                
+                icon.setAttribute('data-lucide', 'check');
+                text.textContent = 'Copied!';
+                lucide.createIcons();
+                
+                setTimeout(() => {
+                    icon.setAttribute('data-lucide', 'copy');
+                    text.textContent = 'Copy';
+                    lucide.createIcons();
+                }, 2000);
+            });
+        });
+
+        // Initial render
+        updateOutputs();
+    </script>
+</body>
+</html>
