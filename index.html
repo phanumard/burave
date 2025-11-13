@@ -601,38 +601,42 @@
                         
                         let updated = false;
                         
+                        // === EXTRACT TITLE ===
                         // Get h1 first (priority), then fallback to other sources
                         const h1Text = doc.querySelector('h1')?.textContent?.trim();
                         const ogTitle = doc.querySelector('meta[property="og:title"]')?.content || 
-                                       doc.querySelector('meta[name="twitter:title"]')?.content ||
-                                       doc.querySelector('title')?.textContent;
+                                       doc.querySelector('meta[name="twitter:title"]')?.content;
                         
+                        // Don't use the page title tag for article title
                         const titleToUse = h1Text || ogTitle;
                         
-                        // Extract category from multiple sources
+                        // === EXTRACT CATEGORY ===
                         let category = null;
                         
-                        // Try to extract from title first (format: "category / title | site")
+                        // Method 1: Try to extract from page title (format: "category / title | site")
                         const pageTitle = doc.querySelector('title')?.textContent?.trim();
+                        console.log('Full page title:', pageTitle);
+                        
                         if (pageTitle && pageTitle.includes('/')) {
                             const parts = pageTitle.split('/');
                             if (parts.length >= 2) {
                                 category = parts[0].trim();
-                                console.log('Category extracted from title:', category);
+                                console.log('✅ Category extracted from title:', category);
                             }
                         }
                         
-                        // Try breadcrumb if not found in title
+                        // Method 2: Try breadcrumb if not found in title
                         if (!category) {
                             const breadcrumbLinks = doc.querySelectorAll('.breadcrumb a, nav a, [class*="breadcrumb"] a, [class*="category"] a');
+                            console.log('Found breadcrumb links:', breadcrumbLinks.length);
                             if (breadcrumbLinks.length > 0) {
-                                // Get the last breadcrumb link (usually the category)
                                 const lastBreadcrumb = breadcrumbLinks[breadcrumbLinks.length - 1];
                                 category = lastBreadcrumb?.textContent?.trim();
+                                console.log('Category from breadcrumb:', category);
                             }
                         }
                         
-                        // Fallback to meta tags if not found
+                        // Method 3: Fallback to meta tags if not found
                         if (!category) {
                             category = doc.querySelector('meta[property="cat_title"]')?.content ||
                                       doc.querySelector('meta[name="cat_title"]')?.content ||
@@ -643,32 +647,49 @@
                                       doc.querySelector('[itemprop="articleSection"]')?.content ||
                                       doc.querySelector('.category')?.textContent?.trim() ||
                                       doc.querySelector('.cat-title')?.textContent?.trim();
+                            if (category) {
+                                console.log('Category from meta tags:', category);
+                            }
                         }
                         
+                        // === EXTRACT IMAGE & DESCRIPTION ===
                         const ogImage = doc.querySelector('meta[property="og:image"]')?.content || 
                                        doc.querySelector('meta[name="twitter:image"]')?.content;
                         const ogDescription = doc.querySelector('meta[property="og:description"]')?.content ||
                                              doc.querySelector('meta[name="twitter:description"]')?.content ||
                                              doc.querySelector('meta[name="description"]')?.content;
                         
+                        console.log('Extracted data:', {
+                            h1: h1Text,
+                            ogTitle: ogTitle,
+                            title: titleToUse,
+                            category: category,
+                            image: ogImage,
+                            description: ogDescription
+                        });
+                        
+                        // === UPDATE FORM FIELDS ===
                         if (ogImage && !document.getElementById('image').value) {
                             document.getElementById('image').value = ogImage;
                             updated = true;
-                            console.log('Image found:', ogImage);
+                            console.log('✅ Image found:', ogImage);
                             addDebugMessage(`ภาพ: ${ogImage}`, 'success');
                         }
                         if (titleToUse) {
                             document.getElementById('title').value = titleToUse;
                             updated = true;
-                            const source = h1Text ? 'h1' : 'meta';
-                            console.log(`Title found from ${source}:`, titleToUse);
+                            const source = h1Text ? 'h1' : 'og:title';
+                            console.log(`✅ Title found from ${source}:`, titleToUse);
                             addDebugMessage(`ชื่อ (จาก ${source}): ${titleToUse}`, 'success');
                         }
                         if (category) {
                             document.getElementById('cat_title').value = category;
                             updated = true;
-                            console.log('Category found:', category);
+                            console.log('✅ Category found:', category);
                             addDebugMessage(`Product: ${category}`, 'success');
+                        } else {
+                            console.log('❌ No category found');
+                            addDebugMessage('Product: ไม่พบข้อมูล', 'error');
                         }
                         if (ogDescription && !document.getElementById('keysum').value) {
                             document.getElementById('keysum').value = ogDescription;
