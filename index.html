@@ -492,6 +492,15 @@
                         if (data) {
                             let imageFound = false;
                             let descriptionFound = false;
+                            let titleFound = false;
+                            
+                            // Get TITLE from Microlink
+                            if (data.title && !document.getElementById('title').value) {
+                                document.getElementById('title').value = data.title;
+                                titleFound = true;
+                                console.log('✅ Title found from Microlink:', data.title);
+                                addDebugMessage(`ชื่อ (จาก Microlink): ${data.title}`, 'success');
+                            }
                             
                             if (data.image?.url || data.logo?.url) {
                                 document.getElementById('image').value = data.image?.url || data.logo?.url;
@@ -507,10 +516,12 @@
                                 addDebugMessage(`คำอธิบาย: ${data.description.substring(0, 50)}...`, 'success');
                             }
                             
-                            // For title, need to get h1 from actual HTML - continue to AllOrigins
-                            if (imageFound || descriptionFound) {
-                                console.log('Got image/description from Microlink, will get h1 from HTML');
-                                addDebugMessage('ได้ภาพ/คำอธิบายแล้ว กำลังดึง h1 จาก HTML...', 'info');
+                            // If we got title from Microlink, we can skip AllOrigins
+                            if (titleFound && imageFound && descriptionFound) {
+                                console.log('✅ Got all data from Microlink, skipping AllOrigins');
+                                addDebugMessage('ดึงข้อมูลครบจาก Microlink แล้ว', 'success');
+                                updateOutputs();
+                                return;
                             }
                         }
                     }
@@ -573,7 +584,8 @@
                         
                         console.log('=== Starting metadata extraction ===');
                         
-                        // === EXTRACT TITLE FROM H1 ===
+                        // === EXTRACT TITLE ===
+                        // Priority 1: Try from h1 tags in HTML
                         const allH1 = doc.querySelectorAll('h1');
                         console.log('🔍 Found h1 tags:', allH1.length);
                         
@@ -590,14 +602,28 @@
                             });
                         }
                         
-                        console.log('📝 Selected h1Text:', h1Text);
+                        console.log('📝 h1Text from HTML:', h1Text);
                         
-                        // Fallback to og:title if no h1
+                        // Priority 2: Try og:title
                         const ogTitle = doc.querySelector('meta[property="og:title"]')?.content || 
                                        doc.querySelector('meta[name="twitter:title"]')?.content;
                         console.log('📝 og:title:', ogTitle);
                         
-                        const titleToUse = h1Text || ogTitle;
+                        // Priority 3: Extract from page title (format: "category / title | site")
+                        const pageTitle = doc.querySelector('title')?.textContent?.trim();
+                        console.log('📝 page title:', pageTitle);
+                        
+                        let titleFromPageTitle = null;
+                        if (pageTitle && pageTitle.includes('/') && pageTitle.includes('|')) {
+                            const parts = pageTitle.split('/');
+                            if (parts.length >= 2) {
+                                titleFromPageTitle = parts[1].split('|')[0].trim();
+                                console.log('📝 title extracted from page title:', titleFromPageTitle);
+                            }
+                        }
+                        
+                        // Choose the best title
+                        const titleToUse = h1Text || ogTitle || titleFromPageTitle || pageTitle;
                         console.log('✅ Final title to use:', titleToUse);
                         
                         // === EXTRACT IMAGE & DESCRIPTION ===
