@@ -76,8 +76,8 @@
                             <p class="text-xs text-gray-500 mt-1">✏️ แก้ไขได้ตามต้องการ</p>
                         </div>
 
-                        <!-- Product (เดิมชื่อ Category) - HIDDEN FOR NOW -->
-                        <div style="display: none;">
+                        <!-- Product (เดิมชื่อ Category) -->
+                        <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">Product</label>
                             <input
                                 type="text"
@@ -85,7 +85,7 @@
                                 placeholder="จะดึงอัตโนมัติจาก Web Link"
                                 class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                             />
-                            <p class="text-xs text-gray-500 mt-1">🏷️ หมวดหมู่ (ดึงอัตโนมัติจาก article:section)</p>
+                            <p class="text-xs text-gray-500 mt-1">🏷️ ดึงอัตโนมัติจาก title (ส่วนก่อน /)</p>
                         </div>
 
                         <!-- Font Size Control -->
@@ -325,6 +325,28 @@
                                         "wrap": true,
                                         "style": "normal",
                                         "decoration": "none"
+                                    },
+                                    {
+                                        "type": "box",
+                                        "layout": "vertical",
+                                        "contents": [
+                                            {
+                                                "type": "separator",
+                                                "color": "#BD8B66",
+                                                "margin": "xs"
+                                            },
+                                            {
+                                                "type": "text",
+                                                "text": data.cat_title || "",
+                                                "size": `${Math.round(fontSize * 0.3)}px`,
+                                                "color": "#FFFFFF",
+                                                "weight": "regular",
+                                                "wrap": true,
+                                                "margin": "xs"
+                                            }
+                                        ],
+                                        "margin": "xs",
+                                        "width": "auto"
                                     }
                                 ],
                                 "position": "absolute",
@@ -421,6 +443,14 @@
                             <p class="font-kanit text-white" style="font-size: ${fontSize}px; line-height: 1.3; font-weight: 500;">
                                 ${data.title}
                             </p>
+                            ${data.cat_title ? `
+                                <div class="mt-1 inline-block">
+                                    <div class="h-px mb-1" style="background-color: #BD8B66;"></div>
+                                    <p class="text-white" style="font-size: ${Math.round(fontSize * 0.3)}px; font-weight: 400;">
+                                        ${data.cat_title}
+                                    </p>
+                                </div>
+                            ` : ''}
                         </div>
                     ` : `
                         <div class="absolute inset-0 flex items-center justify-center text-gray-400">
@@ -496,10 +526,28 @@
                             
                             // Get TITLE from Microlink
                             if (data.title && !document.getElementById('title').value) {
-                                document.getElementById('title').value = data.title;
+                                let titleToUse = data.title;
+                                
+                                // Extract product/category and clean title
+                                // Format: "category / title | site"
+                                if (titleToUse.includes('/') && titleToUse.includes('|')) {
+                                    const parts = titleToUse.split('/');
+                                    if (parts.length >= 2) {
+                                        // Product = part before "/"
+                                        const product = parts[0].trim();
+                                        document.getElementById('cat_title').value = product;
+                                        console.log('✅ Product extracted:', product);
+                                        addDebugMessage(`Product: ${product}`, 'success');
+                                        
+                                        // Title = part between "/" and "|"
+                                        titleToUse = parts[1].split('|')[0].trim();
+                                    }
+                                }
+                                
+                                document.getElementById('title').value = titleToUse;
                                 titleFound = true;
-                                console.log('✅ Title found from Microlink:', data.title);
-                                addDebugMessage(`ชื่อ (จาก Microlink): ${data.title}`, 'success');
+                                console.log('✅ Title found from Microlink:', titleToUse);
+                                addDebugMessage(`ชื่อ (จาก Microlink): ${titleToUse}`, 'success');
                             }
                             
                             if (data.image?.url || data.logo?.url) {
@@ -614,17 +662,24 @@
                         console.log('📝 page title:', pageTitle);
                         
                         let titleFromPageTitle = null;
+                        let productFromPageTitle = null;
+                        
                         if (pageTitle && pageTitle.includes('/') && pageTitle.includes('|')) {
                             const parts = pageTitle.split('/');
                             if (parts.length >= 2) {
+                                productFromPageTitle = parts[0].trim();
                                 titleFromPageTitle = parts[1].split('|')[0].trim();
+                                console.log('📝 product extracted from page title:', productFromPageTitle);
                                 console.log('📝 title extracted from page title:', titleFromPageTitle);
                             }
                         }
                         
                         // Choose the best title
                         const titleToUse = h1Text || ogTitle || titleFromPageTitle || pageTitle;
+                        const productToUse = productFromPageTitle;
+                        
                         console.log('✅ Final title to use:', titleToUse);
+                        console.log('✅ Final product to use:', productToUse);
                         
                         // === EXTRACT IMAGE & DESCRIPTION ===
                         const ogImage = doc.querySelector('meta[property="og:image"]')?.content || 
@@ -637,6 +692,7 @@
                             h1: h1Text,
                             ogTitle: ogTitle,
                             finalTitle: titleToUse,
+                            product: productToUse,
                             image: ogImage,
                             description: ogDescription
                         });
@@ -648,15 +704,21 @@
                             console.log('✅ Image updated');
                             addDebugMessage(`ภาพ: ${ogImage}`, 'success');
                         }
-                        if (titleToUse) {
+                        if (titleToUse && !document.getElementById('title').value) {
                             document.getElementById('title').value = titleToUse;
                             updated = true;
-                            const source = h1Text ? 'h1' : 'og:title';
+                            const source = h1Text ? 'h1' : ogTitle ? 'og:title' : 'page title';
                             console.log(`✅ Title updated from ${source}:`, titleToUse);
                             addDebugMessage(`ชื่อ (จาก ${source}): ${titleToUse}`, 'success');
-                        } else {
+                        } else if (!titleToUse) {
                             console.log('❌ No title found');
                             addDebugMessage('Title: ไม่พบข้อมูล', 'error');
+                        }
+                        if (productToUse && !document.getElementById('cat_title').value) {
+                            document.getElementById('cat_title').value = productToUse;
+                            updated = true;
+                            console.log('✅ Product updated:', productToUse);
+                            addDebugMessage(`Product: ${productToUse}`, 'success');
                         }
                         if (ogDescription && !document.getElementById('keysum').value) {
                             document.getElementById('keysum').value = ogDescription;
