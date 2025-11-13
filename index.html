@@ -76,8 +76,8 @@
                             <p class="text-xs text-gray-500 mt-1">✏️ แก้ไขได้ตามต้องการ</p>
                         </div>
 
-                        <!-- Product (เดิมชื่อ Category) -->
-                        <div>
+                        <!-- Product (เดิมชื่อ Category) - HIDDEN FOR NOW -->
+                        <div style="display: none;">
                             <label class="block text-sm font-medium text-gray-700 mb-2">Product</label>
                             <input
                                 type="text"
@@ -325,28 +325,6 @@
                                         "wrap": true,
                                         "style": "normal",
                                         "decoration": "none"
-                                    },
-                                    {
-                                        "type": "box",
-                                        "layout": "vertical",
-                                        "contents": [
-                                            {
-                                                "type": "separator",
-                                                "color": "#BD8B66",
-                                                "margin": "xs"
-                                            },
-                                            {
-                                                "type": "text",
-                                                "text": data.cat_title || "",
-                                                "size": `${Math.round(fontSize * 0.3)}px`,
-                                                "color": "#FFFFFF",
-                                                "weight": "regular",
-                                                "wrap": true,
-                                                "margin": "xs"
-                                            }
-                                        ],
-                                        "margin": "xs",
-                                        "width": "auto"
                                     }
                                 ],
                                 "position": "absolute",
@@ -443,14 +421,6 @@
                             <p class="font-kanit text-white" style="font-size: ${fontSize}px; line-height: 1.3; font-weight: 500;">
                                 ${data.title}
                             </p>
-                            ${data.cat_title ? `
-                                <div class="mt-1 inline-block">
-                                    <div class="h-px mb-1" style="background-color: #BD8B66;"></div>
-                                    <p class="text-white" style="font-size: ${Math.round(fontSize * 0.3)}px; font-weight: 400;">
-                                        ${data.cat_title}
-                                    </p>
-                                </div>
-                            ` : ''}
                         </div>
                     ` : `
                         <div class="absolute inset-0 flex items-center justify-center text-gray-400">
@@ -601,97 +571,34 @@
                         
                         let updated = false;
                         
-                        // === EXTRACT PAGE TITLE FIRST (for category extraction) ===
-                        const pageTitle = doc.querySelector('title')?.textContent?.trim();
-                        console.log('📄 Full page title:', pageTitle);
+                        console.log('=== Starting metadata extraction ===');
                         
-                        // === EXTRACT TITLE ===
-                        // Debug: Check all h1 tags
+                        // === EXTRACT TITLE FROM H1 ===
                         const allH1 = doc.querySelectorAll('h1');
                         console.log('🔍 Found h1 tags:', allH1.length);
-                        allH1.forEach((h1, index) => {
-                            console.log(`  h1[${index}]:`, h1.textContent?.trim().substring(0, 100));
-                        });
                         
-                        // Get h1 text with better cleaning
                         let h1Text = null;
                         if (allH1.length > 0) {
-                            // Get the first non-empty h1
-                            for (let h1 of allH1) {
+                            allH1.forEach((h1, index) => {
                                 const text = h1.textContent?.trim();
-                                if (text && text.length > 10) { // Ignore very short h1
+                                console.log(`  h1[${index}]:`, text?.substring(0, 150));
+                                
+                                // Get the first non-empty h1 that's not too short
+                                if (!h1Text && text && text.length > 10) {
                                     h1Text = text;
-                                    break;
                                 }
-                            }
+                            });
                         }
                         
+                        console.log('📝 Selected h1Text:', h1Text);
+                        
+                        // Fallback to og:title if no h1
                         const ogTitle = doc.querySelector('meta[property="og:title"]')?.content || 
                                        doc.querySelector('meta[name="twitter:title"]')?.content;
+                        console.log('📝 og:title:', ogTitle);
                         
-                        console.log('📝 h1Text:', h1Text);
-                        console.log('📝 ogTitle:', ogTitle);
-                        
-                        let titleToUse = h1Text || ogTitle;
-                        
-                        // Fallback: Extract title from page title if no h1 or og:title
-                        if (!titleToUse && pageTitle) {
-                            console.log('⚠️ No h1 or og:title, using page title as fallback');
-                            // Format: "category / title | site" -> extract "title"
-                            if (pageTitle.includes('/') && pageTitle.includes('|')) {
-                                const parts = pageTitle.split('/');
-                                if (parts.length >= 2) {
-                                    const titlePart = parts[1].split('|')[0].trim();
-                                    titleToUse = titlePart;
-                                    console.log('Title extracted from page title:', titleToUse);
-                                }
-                            } else if (pageTitle.includes('|')) {
-                                // Format: "title | site" -> extract "title"
-                                titleToUse = pageTitle.split('|')[0].trim();
-                                console.log('Title extracted from page title (no category):', titleToUse);
-                            } else {
-                                titleToUse = pageTitle;
-                            }
-                        }
-                        
-                        // === EXTRACT CATEGORY ===
-                        let category = null;
-                        
-                        // Method 1: Extract from page title (format: "category / title | site")
-                        if (pageTitle && pageTitle.includes('/')) {
-                            const parts = pageTitle.split('/');
-                            if (parts.length >= 2) {
-                                category = parts[0].trim();
-                                console.log('✅ Category extracted from title:', category);
-                            }
-                        }
-                        
-                        // Method 2: Try breadcrumb if not found in title
-                        if (!category) {
-                            const breadcrumbLinks = doc.querySelectorAll('.breadcrumb a, nav a, [class*="breadcrumb"] a, [class*="category"] a');
-                            console.log('🔍 Found breadcrumb links:', breadcrumbLinks.length);
-                            if (breadcrumbLinks.length > 0) {
-                                const lastBreadcrumb = breadcrumbLinks[breadcrumbLinks.length - 1];
-                                category = lastBreadcrumb?.textContent?.trim();
-                                console.log('Category from breadcrumb:', category);
-                            }
-                        }
-                        
-                        // Method 3: Fallback to meta tags if not found
-                        if (!category) {
-                            category = doc.querySelector('meta[property="cat_title"]')?.content ||
-                                      doc.querySelector('meta[name="cat_title"]')?.content ||
-                                      doc.querySelector('meta[property="article:section"]')?.content ||
-                                      doc.querySelector('meta[name="article:section"]')?.content ||
-                                      doc.querySelector('meta[property="category"]')?.content ||
-                                      doc.querySelector('meta[name="category"]')?.content ||
-                                      doc.querySelector('[itemprop="articleSection"]')?.content ||
-                                      doc.querySelector('.category')?.textContent?.trim() ||
-                                      doc.querySelector('.cat-title')?.textContent?.trim();
-                            if (category) {
-                                console.log('Category from meta tags:', category);
-                            }
-                        }
+                        const titleToUse = h1Text || ogTitle;
+                        console.log('✅ Final title to use:', titleToUse);
                         
                         // === EXTRACT IMAGE & DESCRIPTION ===
                         const ogImage = doc.querySelector('meta[property="og:image"]')?.content || 
@@ -703,9 +610,7 @@
                         console.log('Extracted data:', {
                             h1: h1Text,
                             ogTitle: ogTitle,
-                            pageTitle: pageTitle,
                             finalTitle: titleToUse,
-                            category: category,
                             image: ogImage,
                             description: ogDescription
                         });
@@ -714,26 +619,18 @@
                         if (ogImage && !document.getElementById('image').value) {
                             document.getElementById('image').value = ogImage;
                             updated = true;
-                            console.log('✅ Image found:', ogImage);
+                            console.log('✅ Image updated');
                             addDebugMessage(`ภาพ: ${ogImage}`, 'success');
                         }
                         if (titleToUse) {
                             document.getElementById('title').value = titleToUse;
                             updated = true;
-                            let source = 'page title';
-                            if (h1Text) source = 'h1';
-                            else if (ogTitle) source = 'og:title';
-                            console.log(`✅ Title found from ${source}:`, titleToUse);
+                            const source = h1Text ? 'h1' : 'og:title';
+                            console.log(`✅ Title updated from ${source}:`, titleToUse);
                             addDebugMessage(`ชื่อ (จาก ${source}): ${titleToUse}`, 'success');
-                        }
-                        if (category) {
-                            document.getElementById('cat_title').value = category;
-                            updated = true;
-                            console.log('✅ Category found:', category);
-                            addDebugMessage(`Product: ${category}`, 'success');
                         } else {
-                            console.log('❌ No category found');
-                            addDebugMessage('Product: ไม่พบข้อมูล', 'error');
+                            console.log('❌ No title found');
+                            addDebugMessage('Title: ไม่พบข้อมูล', 'error');
                         }
                         if (ogDescription && !document.getElementById('keysum').value) {
                             document.getElementById('keysum').value = ogDescription;
