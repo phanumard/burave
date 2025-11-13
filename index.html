@@ -91,7 +91,7 @@
                                     −
                                 </button>
                                 <div class="flex-1 text-center">
-                                    <span id="fontSizeDisplay" class="text-lg font-semibold text-gray-700">lg</span>
+                                    <span id="fontSizeDisplay" class="text-lg font-semibold text-gray-700">18px</span>
                                     <p class="text-xs text-gray-500">ขนาดปัจจุบัน</p>
                                 </div>
                                 <button
@@ -104,7 +104,7 @@
                                 </button>
                             </div>
                             <p class="text-xs text-gray-500 mt-1">
-                                📏 ขนาด: xs, sm, md, lg, xl, xxl, 3xl, 4xl, 5xl
+                                📏 ขนาด: 12px - 36px (ปรับทีละ 2px)
                             </p>
                         </div>
 
@@ -201,7 +201,7 @@
         lucide.createIcons();
 
         // State management
-        let fontSize = 'lg'; // Default font size: xl, lg, md, sm, xs
+        let fontSize = 18; // Default font size in pixels
         let isLoading = false;
 
         // Get today's date in DDMMYYYY format
@@ -295,8 +295,8 @@
                                     }
                                 ],
                                 "position": "absolute",
-                                "offsetTop": "32px",
-                                "offsetStart": "32px",
+                                "offsetTop": "0px",
+                                "offsetStart": "20px",
                                 "width": "80px"
                             },
                             {
@@ -306,9 +306,9 @@
                                     {
                                         "type": "text",
                                         "text": data.title,
-                                        "size": fontSize,
+                                        "size": `${fontSize}px`,
                                         "color": "#FFFFFF",
-                                        "weight": "bold",
+                                        "weight": "regular",
                                         "wrap": true,
                                         "style": "normal",
                                         "decoration": "none"
@@ -316,8 +316,8 @@
                                 ],
                                 "position": "absolute",
                                 "offsetBottom": "50px",
-                                "offsetStart": "32px",
-                                "offsetEnd": "32px"
+                                "offsetStart": "20px",
+                                "offsetEnd": "20px"
                             }
                         ]
                     },
@@ -408,19 +408,6 @@
             const imageUrl = getImageUrl(data.image);
             const aspectRatio = '70%';
             
-            // Map font sizes to actual pixel sizes for preview
-            const fontSizeMap = {
-                'xs': '12px',
-                'sm': '14px',
-                'md': '16px',
-                'lg': '18px',
-                'xl': '20px',
-                'xxl': '24px',
-                '3xl': '28px',
-                '4xl': '32px',
-                '5xl': '36px'
-            };
-            
             let html = `
                 <div class="relative bg-gray-200" style="padding-bottom: ${aspectRatio}">
                     ${data.image !== '[image]' ? `
@@ -432,13 +419,13 @@
                         />
                         <!-- Gradient Overlay -->
                         <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent"></div>
-                        <!-- Logo at Top Left -->
-                        <div class="absolute top-[32px] left-[32px] w-20">
+                        <!-- Logo at Top Left (aligned with body padding) -->
+                        <div class="absolute top-0 left-5 w-20 pt-4">
                             <img src="https://phanumard.github.io/burave/eic-logo-black.png" alt="EIC Logo" class="w-full" />
                         </div>
-                        <!-- Title Text at Bottom Left -->
-                        <div class="absolute bottom-[50px] left-[32px] right-[32px]">
-                            <p class="font-kanit font-bold text-white" style="font-size: ${fontSizeMap[fontSize]}; line-height: 1.3;">
+                        <!-- Title Text at Bottom Left (aligned with body padding) -->
+                        <div class="absolute bottom-[50px] left-5 right-5">
+                            <p class="font-kanit text-white" style="font-size: ${fontSize}px; line-height: 1.3; font-weight: 500;">
                                 ${data.title}
                             </p>
                         </div>
@@ -661,21 +648,17 @@
 
         // Event listeners
         document.getElementById('btnIncreaseFontSize').addEventListener('click', function() {
-            const fontSizes = ['xs', 'sm', 'md', 'lg', 'xl', 'xxl', '3xl', '4xl', '5xl'];
-            const currentIndex = fontSizes.indexOf(fontSize);
-            if (currentIndex < fontSizes.length - 1) {
-                fontSize = fontSizes[currentIndex + 1];
-                document.getElementById('fontSizeDisplay').textContent = fontSize;
+            if (fontSize < 36) {
+                fontSize += 2;
+                document.getElementById('fontSizeDisplay').textContent = fontSize + 'px';
                 updateOutputs();
             }
         });
 
         document.getElementById('btnDecreaseFontSize').addEventListener('click', function() {
-            const fontSizes = ['xs', 'sm', 'md', 'lg', 'xl', 'xxl', '3xl', '4xl', '5xl'];
-            const currentIndex = fontSizes.indexOf(fontSize);
-            if (currentIndex > 0) {
-                fontSize = fontSizes[currentIndex - 1];
-                document.getElementById('fontSizeDisplay').textContent = fontSize;
+            if (fontSize > 12) {
+                fontSize -= 2;
+                document.getElementById('fontSizeDisplay').textContent = fontSize + 'px';
                 updateOutputs();
             }
         });
