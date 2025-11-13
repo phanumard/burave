@@ -6,6 +6,9 @@
     <title>LINE Flex Message Generator</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
     <style>
         @keyframes pulse {
             0%, 100% { opacity: 1; }
@@ -13,6 +16,9 @@
         }
         .animate-pulse {
             animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        .font-kanit {
+            font-family: 'Kanit', sans-serif;
         }
     </style>
 </head>
@@ -23,18 +29,6 @@
             <div class="text-center mb-8">
                 <h1 class="text-4xl font-bold text-gray-800 mb-2">LINE Flex Message Generator</h1>
                 <p class="text-gray-600">กรอกข้อมูลเพื่อสร้าง Flex Message JSON</p>
-            </div>
-
-            <!-- Template Type Selector -->
-            <div class="mb-8 flex justify-center">
-                <div class="bg-white rounded-lg shadow-lg p-2 inline-flex gap-2">
-                    <button id="btnArticle" class="px-8 py-3 rounded-lg font-semibold transition-all bg-purple-600 text-white shadow-md">
-                        Article
-                    </button>
-                    <button id="btnOutlook" class="px-8 py-3 rounded-lg font-semibold transition-all bg-gray-100 text-gray-600 hover:bg-gray-200">
-                        Outlook
-                    </button>
-                </div>
             </div>
 
             <div class="grid md:grid-cols-2 gap-8">
@@ -80,6 +74,38 @@
                                 class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                             />
                             <p class="text-xs text-gray-500 mt-1">✏️ แก้ไขได้ตามต้องการ</p>
+                        </div>
+
+                        <!-- Font Size Control -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                ขนาดตัวอักษร Title
+                            </label>
+                            <div class="flex items-center gap-3">
+                                <button
+                                    type="button"
+                                    id="btnDecreaseFontSize"
+                                    class="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors font-semibold"
+                                    title="ลดขนาดตัวอักษร"
+                                >
+                                    −
+                                </button>
+                                <div class="flex-1 text-center">
+                                    <span id="fontSizeDisplay" class="text-lg font-semibold text-gray-700">lg</span>
+                                    <p class="text-xs text-gray-500">ขนาดปัจจุบัน</p>
+                                </div>
+                                <button
+                                    type="button"
+                                    id="btnIncreaseFontSize"
+                                    class="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors font-semibold"
+                                    title="เพิ่มขนาดตัวอักษร"
+                                >
+                                    +
+                                </button>
+                            </div>
+                            <p class="text-xs text-gray-500 mt-1">
+                                📏 ขนาด: xs, sm, md, lg, xl, xxl, 3xl, 4xl, 5xl
+                            </p>
                         </div>
 
                         <!-- Image URL -->
@@ -175,7 +201,7 @@
         lucide.createIcons();
 
         // State management
-        let templateType = 'article';
+        let fontSize = 'lg'; // Default font size: xl, lg, md, sm, xs
         let isLoading = false;
 
         // Get today's date in DDMMYYYY format
@@ -265,13 +291,33 @@
                                         "type": "image",
                                         "url": "https://phanumard.github.io/burave/eic-logo-black.png",
                                         "size": "xs",
-                                        "align": "end"
+                                        "align": "start"
                                     }
                                 ],
                                 "position": "absolute",
-                                "offsetTop": "50px",
-                                "offsetEnd": "50px",
+                                "offsetTop": "32px",
+                                "offsetStart": "32px",
                                 "width": "80px"
+                            },
+                            {
+                                "type": "box",
+                                "layout": "vertical",
+                                "contents": [
+                                    {
+                                        "type": "text",
+                                        "text": data.title,
+                                        "size": fontSize,
+                                        "color": "#FFFFFF",
+                                        "weight": "bold",
+                                        "wrap": true,
+                                        "style": "normal",
+                                        "decoration": "none"
+                                    }
+                                ],
+                                "position": "absolute",
+                                "offsetBottom": "50px",
+                                "offsetStart": "32px",
+                                "offsetEnd": "32px"
                             }
                         ]
                     },
@@ -349,110 +395,10 @@
             }];
         }
 
-        // Generate Outlook JSON
-        function generateOutlookJSON(data) {
-            return [{
-                "type": "flex",
-                "altText": data.title,
-                "contents": {
-                    "type": "bubble",
-                    "size": "giga",
-                    "hero": {
-                        "type": "box",
-                        "layout": "vertical",
-                        "contents": [
-                            {
-                                "type": "image",
-                                "url": getImageUrl(data.image),
-                                "size": "full",
-                                "aspectRatio": "25:28",
-                                "aspectMode": "cover",
-                                "action": {
-                                    "type": "uri",
-                                    "uri": getWebLinkWithUTM(data.weblink)
-                                }
-                            },
-                            {
-                                "type": "box",
-                                "layout": "vertical",
-                                "contents": [],
-                                "position": "absolute",
-                                "background": {
-                                    "type": "linearGradient",
-                                    "angle": "0deg",
-                                    "startColor": "#00000000",
-                                    "endColor": "#000000CC"
-                                },
-                                "width": "100%",
-                                "height": "100%",
-                                "offsetBottom": "0px",
-                                "offsetStart": "0px",
-                                "offsetEnd": "0px"
-                            },
-                            {
-                                "type": "box",
-                                "layout": "vertical",
-                                "contents": [
-                                    {
-                                        "type": "image",
-                                        "url": "https://phanumard.github.io/burave/eic-logo-black.png",
-                                        "size": "xs",
-                                        "align": "end"
-                                    }
-                                ],
-                                "position": "absolute",
-                                "offsetTop": "50px",
-                                "offsetEnd": "50px",
-                                "width": "80px"
-                            }
-                        ]
-                    },
-                    "footer": {
-                        "type": "box",
-                        "layout": "vertical",
-                        "spacing": "sm",
-                        "contents": [
-                            {
-                                "type": "button",
-                                "style": "primary",
-                                "height": "sm",
-                                "action": {
-                                    "type": "uri",
-                                    "label": "Read more",
-                                    "uri": data.weblink
-                                },
-                                "color": "#bd8c66"
-                            },
-                            {
-                                "type": "button",
-                                "style": "secondary",
-                                "height": "sm",
-                                "action": {
-                                    "type": "uri",
-                                    "label": "Share",
-                                    "uri": `https://liff.line.me/1657155025-N4RBzQGX?messages=https://raw.githubusercontent.com/scbeic/sharetarget2/main/messages${data.date}.json`
-                                }
-                            },
-                            {
-                                "type": "box",
-                                "layout": "vertical",
-                                "contents": [],
-                                "margin": "sm"
-                            }
-                        ],
-                        "flex": 0,
-                        "backgroundColor": "#1f172b"
-                    }
-                }
-            }];
-        }
-
         // Generate JSON output
         function generateJSON() {
             const data = getFormData();
-            const json = templateType === 'article' 
-                ? generateArticleJSON(data) 
-                : generateOutlookJSON(data);
+            const json = generateArticleJSON(data);
             return JSON.stringify(json, null, 2);
         }
 
@@ -460,7 +406,20 @@
         function updatePreview() {
             const data = getFormData();
             const imageUrl = getImageUrl(data.image);
-            const aspectRatio = templateType === 'article' ? '70%' : '112%';
+            const aspectRatio = '70%';
+            
+            // Map font sizes to actual pixel sizes for preview
+            const fontSizeMap = {
+                'xs': '12px',
+                'sm': '14px',
+                'md': '16px',
+                'lg': '18px',
+                'xl': '20px',
+                'xxl': '24px',
+                '3xl': '28px',
+                '4xl': '32px',
+                '5xl': '36px'
+            };
             
             let html = `
                 <div class="relative bg-gray-200" style="padding-bottom: ${aspectRatio}">
@@ -473,9 +432,15 @@
                         />
                         <!-- Gradient Overlay -->
                         <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent"></div>
-                        <!-- Logo -->
-                        <div class="absolute top-[50px] right-[50px] w-20">
+                        <!-- Logo at Top Left -->
+                        <div class="absolute top-[32px] left-[32px] w-20">
                             <img src="https://phanumard.github.io/burave/eic-logo-black.png" alt="EIC Logo" class="w-full" />
+                        </div>
+                        <!-- Title Text at Bottom Left -->
+                        <div class="absolute bottom-[50px] left-[32px] right-[32px]">
+                            <p class="font-kanit font-bold text-white" style="font-size: ${fontSizeMap[fontSize]}; line-height: 1.3;">
+                                ${data.title}
+                            </p>
                         </div>
                     ` : `
                         <div class="absolute inset-0 flex items-center justify-center text-gray-400">
@@ -483,23 +448,12 @@
                         </div>
                     `}
                 </div>
-            `;
-
-            if (templateType === 'article') {
-                html += `
-                    <div class="p-4">
-                        <h3 class="font-bold text-lg mb-3">Key summary</h3>
-                        <p class="text-gray-600 text-sm">${data.keysum}</p>
-                    </div>
-                `;
-            }
-
-            const bgColor = templateType === 'outlook' ? 'bg-gray-900' : '';
-            const btnColor = templateType === 'article' ? 'bg-purple-700 hover:bg-purple-800' : 'bg-amber-700 hover:bg-amber-800';
-            
-            html += `
-                <div class="p-4 space-y-2 ${bgColor}">
-                    <button class="w-full py-2 text-white rounded font-medium transition-colors ${btnColor}">
+                <div class="p-4">
+                    <h3 class="font-bold text-lg mb-3">Key summary</h3>
+                    <p class="text-gray-600 text-sm">${data.keysum}</p>
+                </div>
+                <div class="p-4 space-y-2">
+                    <button class="w-full py-2 text-white rounded font-medium transition-colors bg-purple-700 hover:bg-purple-800">
                         Read more
                     </button>
                     <button class="w-full py-2 bg-gray-200 text-gray-700 rounded font-medium hover:bg-gray-300 transition-colors">
@@ -706,20 +660,24 @@
         }
 
         // Event listeners
-        document.getElementById('btnArticle').addEventListener('click', function() {
-            templateType = 'article';
-            this.className = 'px-8 py-3 rounded-lg font-semibold transition-all bg-purple-600 text-white shadow-md';
-            document.getElementById('btnOutlook').className = 'px-8 py-3 rounded-lg font-semibold transition-all bg-gray-100 text-gray-600 hover:bg-gray-200';
-            document.getElementById('keysumContainer').style.display = 'block';
-            updateOutputs();
+        document.getElementById('btnIncreaseFontSize').addEventListener('click', function() {
+            const fontSizes = ['xs', 'sm', 'md', 'lg', 'xl', 'xxl', '3xl', '4xl', '5xl'];
+            const currentIndex = fontSizes.indexOf(fontSize);
+            if (currentIndex < fontSizes.length - 1) {
+                fontSize = fontSizes[currentIndex + 1];
+                document.getElementById('fontSizeDisplay').textContent = fontSize;
+                updateOutputs();
+            }
         });
 
-        document.getElementById('btnOutlook').addEventListener('click', function() {
-            templateType = 'outlook';
-            this.className = 'px-8 py-3 rounded-lg font-semibold transition-all bg-amber-600 text-white shadow-md';
-            document.getElementById('btnArticle').className = 'px-8 py-3 rounded-lg font-semibold transition-all bg-gray-100 text-gray-600 hover:bg-gray-200';
-            document.getElementById('keysumContainer').style.display = 'none';
-            updateOutputs();
+        document.getElementById('btnDecreaseFontSize').addEventListener('click', function() {
+            const fontSizes = ['xs', 'sm', 'md', 'lg', 'xl', 'xxl', '3xl', '4xl', '5xl'];
+            const currentIndex = fontSizes.indexOf(fontSize);
+            if (currentIndex > 0) {
+                fontSize = fontSizes[currentIndex - 1];
+                document.getElementById('fontSizeDisplay').textContent = fontSize;
+                updateOutputs();
+            }
         });
 
         document.getElementById('weblink').addEventListener('input', function(e) {
