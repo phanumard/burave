@@ -601,22 +601,41 @@
                         
                         let updated = false;
                         
+                        // === EXTRACT PAGE TITLE FIRST (for category extraction) ===
+                        const pageTitle = doc.querySelector('title')?.textContent?.trim();
+                        console.log('Full page title:', pageTitle);
+                        
                         // === EXTRACT TITLE ===
-                        // Get h1 first (priority), then fallback to other sources
+                        // Get h1 first (priority), then fallback to og:title, then extract from page title
                         const h1Text = doc.querySelector('h1')?.textContent?.trim();
                         const ogTitle = doc.querySelector('meta[property="og:title"]')?.content || 
                                        doc.querySelector('meta[name="twitter:title"]')?.content;
                         
-                        // Don't use the page title tag for article title
-                        const titleToUse = h1Text || ogTitle;
+                        let titleToUse = h1Text || ogTitle;
+                        
+                        // Fallback: Extract title from page title if no h1 or og:title
+                        if (!titleToUse && pageTitle) {
+                            // Format: "category / title | site" -> extract "title"
+                            if (pageTitle.includes('/') && pageTitle.includes('|')) {
+                                const parts = pageTitle.split('/');
+                                if (parts.length >= 2) {
+                                    const titlePart = parts[1].split('|')[0].trim();
+                                    titleToUse = titlePart;
+                                    console.log('Title extracted from page title:', titleToUse);
+                                }
+                            } else if (pageTitle.includes('|')) {
+                                // Format: "title | site" -> extract "title"
+                                titleToUse = pageTitle.split('|')[0].trim();
+                                console.log('Title extracted from page title (no category):', titleToUse);
+                            } else {
+                                titleToUse = pageTitle;
+                            }
+                        }
                         
                         // === EXTRACT CATEGORY ===
                         let category = null;
                         
-                        // Method 1: Try to extract from page title (format: "category / title | site")
-                        const pageTitle = doc.querySelector('title')?.textContent?.trim();
-                        console.log('Full page title:', pageTitle);
-                        
+                        // Method 1: Extract from page title (format: "category / title | site")
                         if (pageTitle && pageTitle.includes('/')) {
                             const parts = pageTitle.split('/');
                             if (parts.length >= 2) {
@@ -662,7 +681,8 @@
                         console.log('Extracted data:', {
                             h1: h1Text,
                             ogTitle: ogTitle,
-                            title: titleToUse,
+                            pageTitle: pageTitle,
+                            finalTitle: titleToUse,
                             category: category,
                             image: ogImage,
                             description: ogDescription
@@ -678,7 +698,9 @@
                         if (titleToUse) {
                             document.getElementById('title').value = titleToUse;
                             updated = true;
-                            const source = h1Text ? 'h1' : 'og:title';
+                            let source = 'page title';
+                            if (h1Text) source = 'h1';
+                            else if (ogTitle) source = 'og:title';
                             console.log(`✅ Title found from ${source}:`, titleToUse);
                             addDebugMessage(`ชื่อ (จาก ${source}): ${titleToUse}`, 'success');
                         }
