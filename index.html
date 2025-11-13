@@ -332,13 +332,13 @@
                                         "contents": [
                                             {
                                                 "type": "separator",
-                                                "color": "#FFFFFF66",
+                                                "color": "#BD8B66",
                                                 "margin": "xs"
                                             },
                                             {
                                                 "type": "text",
                                                 "text": data.cat_title || "",
-                                                "size": `${Math.round(fontSize * 0.25)}px`,
+                                                "size": `${Math.round(fontSize * 0.3)}px`,
                                                 "color": "#FFFFFF",
                                                 "weight": "regular",
                                                 "wrap": true,
@@ -445,8 +445,8 @@
                             </p>
                             ${data.cat_title ? `
                                 <div class="mt-1 inline-block">
-                                    <div class="h-px bg-white opacity-40 mb-1"></div>
-                                    <p class="text-white" style="font-size: ${Math.round(fontSize * 0.25)}px; font-weight: 400;">
+                                    <div class="h-px mb-1" style="background-color: #BD8B66;"></div>
+                                    <p class="text-white" style="font-size: ${Math.round(fontSize * 0.3)}px; font-weight: 400;">
                                         ${data.cat_title}
                                     </p>
                                 </div>
@@ -610,16 +610,29 @@
                         const titleToUse = h1Text || ogTitle;
                         
                         // Extract category from multiple sources
-                        // Try breadcrumb first
                         let category = null;
-                        const breadcrumbLinks = doc.querySelectorAll('.breadcrumb a, nav a, [class*="breadcrumb"] a');
-                        if (breadcrumbLinks.length > 0) {
-                            // Get the last breadcrumb link (usually the category)
-                            const lastBreadcrumb = breadcrumbLinks[breadcrumbLinks.length - 1];
-                            category = lastBreadcrumb?.textContent?.trim();
+                        
+                        // Try to extract from title first (format: "category / title | site")
+                        const pageTitle = doc.querySelector('title')?.textContent?.trim();
+                        if (pageTitle && pageTitle.includes('/')) {
+                            const parts = pageTitle.split('/');
+                            if (parts.length >= 2) {
+                                category = parts[0].trim();
+                                console.log('Category extracted from title:', category);
+                            }
                         }
                         
-                        // Fallback to meta tags if no breadcrumb found
+                        // Try breadcrumb if not found in title
+                        if (!category) {
+                            const breadcrumbLinks = doc.querySelectorAll('.breadcrumb a, nav a, [class*="breadcrumb"] a, [class*="category"] a');
+                            if (breadcrumbLinks.length > 0) {
+                                // Get the last breadcrumb link (usually the category)
+                                const lastBreadcrumb = breadcrumbLinks[breadcrumbLinks.length - 1];
+                                category = lastBreadcrumb?.textContent?.trim();
+                            }
+                        }
+                        
+                        // Fallback to meta tags if not found
                         if (!category) {
                             category = doc.querySelector('meta[property="cat_title"]')?.content ||
                                       doc.querySelector('meta[name="cat_title"]')?.content ||
