@@ -332,20 +332,20 @@
                                         "contents": [
                                             {
                                                 "type": "separator",
-                                                "color": "#FFFFFF66",
-                                                "margin": "xs"
+                                                "color": "#FFFFFF",
+                                                "margin": "sm"
                                             },
                                             {
                                                 "type": "text",
                                                 "text": data.cat_title || "",
-                                                "size": `${Math.round(fontSize * 0.25)}px`,
+                                                "size": `${Math.round(fontSize * 0.5)}px`,
                                                 "color": "#FFFFFF",
                                                 "weight": "regular",
                                                 "wrap": true,
                                                 "margin": "xs"
                                             }
                                         ],
-                                        "margin": "xs",
+                                        "margin": "sm",
                                         "width": "auto"
                                     }
                                 ],
@@ -444,9 +444,9 @@
                                 ${data.title}
                             </p>
                             ${data.cat_title ? `
-                                <div class="mt-1 inline-block">
-                                    <div class="h-px bg-white opacity-40 mb-1"></div>
-                                    <p class="text-white" style="font-size: ${Math.round(fontSize * 0.25)}px; font-weight: 400;">
+                                <div class="mt-2 inline-block">
+                                    <div class="h-px bg-white mb-1"></div>
+                                    <p class="text-white" style="font-size: ${Math.round(fontSize * 0.5)}px; font-weight: 400;">
                                         ${data.cat_title}
                                     </p>
                                 </div>
@@ -458,11 +458,11 @@
                         </div>
                     `}
                 </div>
-                <div class="p-5">
+                <div class="p-4">
                     <h3 class="font-bold text-lg mb-3">Key summary</h3>
                     <p class="text-gray-600 text-sm">${data.keysum}</p>
                 </div>
-                <div class="p-5 space-y-2">
+                <div class="p-4 space-y-2">
                     <button class="w-full py-2 text-white rounded font-medium transition-colors bg-purple-700 hover:bg-purple-800">
                         Read more
                     </button>
@@ -609,28 +609,14 @@
                         
                         const titleToUse = h1Text || ogTitle;
                         
-                        // Extract category from multiple sources
-                        // Try breadcrumb first
-                        let category = null;
-                        const breadcrumbLinks = doc.querySelectorAll('.breadcrumb a, nav a, [class*="breadcrumb"] a');
-                        if (breadcrumbLinks.length > 0) {
-                            // Get the last breadcrumb link (usually the category)
-                            const lastBreadcrumb = breadcrumbLinks[breadcrumbLinks.length - 1];
-                            category = lastBreadcrumb?.textContent?.trim();
-                        }
-                        
-                        // Fallback to meta tags if no breadcrumb found
-                        if (!category) {
-                            category = doc.querySelector('meta[property="cat_title"]')?.content ||
-                                      doc.querySelector('meta[name="cat_title"]')?.content ||
-                                      doc.querySelector('meta[property="article:section"]')?.content ||
-                                      doc.querySelector('meta[name="article:section"]')?.content ||
-                                      doc.querySelector('meta[property="category"]')?.content ||
-                                      doc.querySelector('meta[name="category"]')?.content ||
-                                      doc.querySelector('[itemprop="articleSection"]')?.content ||
-                                      doc.querySelector('.category')?.textContent?.trim() ||
-                                      doc.querySelector('.cat-title')?.textContent?.trim();
-                        }
+                        // Extract category from cat_title, article:section or other meta tags
+                        const category = doc.querySelector('meta[property="cat_title"]')?.content ||
+                                        doc.querySelector('meta[name="cat_title"]')?.content ||
+                                        doc.querySelector('meta[property="article:section"]')?.content ||
+                                        doc.querySelector('meta[name="article:section"]')?.content ||
+                                        doc.querySelector('meta[property="category"]')?.content ||
+                                        doc.querySelector('meta[name="category"]')?.content ||
+                                        doc.querySelector('[itemprop="articleSection"]')?.content;
                         
                         const ogImage = doc.querySelector('meta[property="og:image"]')?.content || 
                                        doc.querySelector('meta[name="twitter:image"]')?.content;
