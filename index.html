@@ -603,18 +603,40 @@
                         
                         // === EXTRACT PAGE TITLE FIRST (for category extraction) ===
                         const pageTitle = doc.querySelector('title')?.textContent?.trim();
-                        console.log('Full page title:', pageTitle);
+                        console.log('📄 Full page title:', pageTitle);
                         
                         // === EXTRACT TITLE ===
-                        // Get h1 first (priority), then fallback to og:title, then extract from page title
-                        const h1Text = doc.querySelector('h1')?.textContent?.trim();
+                        // Debug: Check all h1 tags
+                        const allH1 = doc.querySelectorAll('h1');
+                        console.log('🔍 Found h1 tags:', allH1.length);
+                        allH1.forEach((h1, index) => {
+                            console.log(`  h1[${index}]:`, h1.textContent?.trim().substring(0, 100));
+                        });
+                        
+                        // Get h1 text with better cleaning
+                        let h1Text = null;
+                        if (allH1.length > 0) {
+                            // Get the first non-empty h1
+                            for (let h1 of allH1) {
+                                const text = h1.textContent?.trim();
+                                if (text && text.length > 10) { // Ignore very short h1
+                                    h1Text = text;
+                                    break;
+                                }
+                            }
+                        }
+                        
                         const ogTitle = doc.querySelector('meta[property="og:title"]')?.content || 
                                        doc.querySelector('meta[name="twitter:title"]')?.content;
+                        
+                        console.log('📝 h1Text:', h1Text);
+                        console.log('📝 ogTitle:', ogTitle);
                         
                         let titleToUse = h1Text || ogTitle;
                         
                         // Fallback: Extract title from page title if no h1 or og:title
                         if (!titleToUse && pageTitle) {
+                            console.log('⚠️ No h1 or og:title, using page title as fallback');
                             // Format: "category / title | site" -> extract "title"
                             if (pageTitle.includes('/') && pageTitle.includes('|')) {
                                 const parts = pageTitle.split('/');
@@ -647,7 +669,7 @@
                         // Method 2: Try breadcrumb if not found in title
                         if (!category) {
                             const breadcrumbLinks = doc.querySelectorAll('.breadcrumb a, nav a, [class*="breadcrumb"] a, [class*="category"] a');
-                            console.log('Found breadcrumb links:', breadcrumbLinks.length);
+                            console.log('🔍 Found breadcrumb links:', breadcrumbLinks.length);
                             if (breadcrumbLinks.length > 0) {
                                 const lastBreadcrumb = breadcrumbLinks[breadcrumbLinks.length - 1];
                                 category = lastBreadcrumb?.textContent?.trim();
