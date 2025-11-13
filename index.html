@@ -32,9 +32,11 @@
             </div>
 
             <div class="grid md:grid-cols-2 gap-8">
-                <!-- Form Section -->
-                <div class="bg-white rounded-lg shadow-lg p-6">
-                    <h2 class="text-2xl font-semibold mb-6 text-gray-800">กรอกข้อมูล</h2>
+                <!-- Left Column: Form + Preview -->
+                <div class="space-y-8">
+                    <!-- Form Section -->
+                    <div class="bg-white rounded-lg shadow-lg p-6">
+                        <h2 class="text-2xl font-semibold mb-6 text-gray-800">กรอกข้อมูล</h2>
                     
                     <div class="space-y-4">
                         <!-- Web Link -->
@@ -74,6 +76,30 @@
                                 class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                             />
                             <p class="text-xs text-gray-500 mt-1">✏️ แก้ไขได้ตามต้องการ</p>
+                        </div>
+
+                        <!-- Title Length Control -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                จำนวนตัวอักษร Title สูงสุด
+                            </label>
+                            <div class="flex items-center gap-3">
+                                <input
+                                    type="number"
+                                    id="maxTitleLength"
+                                    min="0"
+                                    max="500"
+                                    value="0"
+                                    class="w-24 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                                />
+                                <div class="flex-1">
+                                    <span id="titleLengthDisplay" class="text-sm text-gray-600">ไม่จำกัด</span>
+                                    <p class="text-xs text-gray-500">ใส่ 0 = ไม่จำกัด</p>
+                                </div>
+                            </div>
+                            <p class="text-xs text-gray-500 mt-1">
+                                ✂️ ตัด title ถ้ายาวเกินที่กำหนด (จะเติม ... ต่อท้าย)
+                            </p>
                         </div>
 
                         <!-- Product (เดิมชื่อ Category) -->
@@ -177,8 +203,19 @@
                     </div>
                 </div>
 
-                <!-- Output Section -->
+                <!-- Preview Section (inside left column) -->
                 <div class="bg-white rounded-lg shadow-lg p-6">
+                    <h2 class="text-2xl font-semibold mb-4 text-gray-800">Preview</h2>
+                    <div class="flex justify-center">
+                        <div id="previewCard" class="w-full max-w-sm bg-white border border-gray-200 rounded-lg overflow-hidden shadow-md">
+                            <!-- Preview will be rendered here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+                <!-- Right Column: JSON Output -->
+                <div class="bg-white rounded-lg shadow-lg p-6 sticky top-8 self-start">
                     <div class="flex justify-between items-center mb-4">
                         <h2 class="text-2xl font-semibold text-gray-800">JSON Output</h2>
                         <button
@@ -190,18 +227,8 @@
                         </button>
                     </div>
                     
-                    <div class="bg-gray-900 rounded-lg p-4 overflow-auto max-h-[600px]">
+                    <div class="bg-gray-900 rounded-lg p-4 overflow-auto max-h-[calc(100vh-200px)]">
                         <pre id="jsonOutput" class="text-green-400 text-sm font-mono"></pre>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Preview Section -->
-            <div class="mt-8 bg-white rounded-lg shadow-lg p-6">
-                <h2 class="text-2xl font-semibold mb-4 text-gray-800">Preview</h2>
-                <div class="flex justify-center">
-                    <div id="previewCard" class="w-full max-w-sm bg-white border border-gray-200 rounded-lg overflow-hidden shadow-md">
-                        <!-- Preview will be rendered here -->
                     </div>
                 </div>
             </div>
@@ -214,6 +241,7 @@
 
         // State management
         let fontSize = 18; // Default font size in pixels
+        let maxTitleLength = 0; // 0 = unlimited
         let isLoading = false;
 
         // Get today's date in DDMMYYYY format
@@ -228,10 +256,23 @@
         // Initialize date
         document.getElementById('date').value = getTodayDate();
 
+        // Truncate title if needed
+        function truncateTitle(title) {
+            if (!title) return title;
+            if (maxTitleLength === 0 || title.length <= maxTitleLength) {
+                return title;
+            }
+            return title.substring(0, maxTitleLength) + '...';
+        }
+
         // Get form data
         function getFormData() {
+            const rawTitle = document.getElementById('title').value || '[title]';
+            const truncatedTitle = truncateTitle(rawTitle);
+            
             return {
-                title: document.getElementById('title').value || '[title]',
+                title: truncatedTitle,
+                rawTitle: rawTitle, // Keep original for display
                 cat_title: document.getElementById('cat_title').value || '',
                 image: document.getElementById('image').value || '[image]',
                 weblink: document.getElementById('weblink').value || '[weblink]',
@@ -778,6 +819,18 @@
             }
         });
 
+        document.getElementById('maxTitleLength').addEventListener('input', function(e) {
+            maxTitleLength = parseInt(e.target.value) || 0;
+            const display = document.getElementById('titleLengthDisplay');
+            if (maxTitleLength === 0) {
+                display.textContent = 'ไม่จำกัด';
+            } else {
+                const currentTitle = document.getElementById('title').value;
+                display.textContent = `จำกัด ${maxTitleLength} ตัว (ปัจจุบัน: ${currentTitle.length} ตัว)`;
+            }
+            updateOutputs();
+        });
+
         document.getElementById('weblink').addEventListener('input', function(e) {
             if (e.target.value) {
                 fetchMetadata(e.target.value);
@@ -791,7 +844,15 @@
             }
         });
 
-        document.getElementById('title').addEventListener('input', updateOutputs);
+        document.getElementById('title').addEventListener('input', function() {
+            updateOutputs();
+            // Update title length display
+            if (maxTitleLength > 0) {
+                const currentTitle = this.value;
+                document.getElementById('titleLengthDisplay').textContent = 
+                    `จำกัด ${maxTitleLength} ตัว (ปัจจุบัน: ${currentTitle.length} ตัว)`;
+            }
+        });
         document.getElementById('cat_title').addEventListener('input', updateOutputs);
         document.getElementById('image').addEventListener('input', updateOutputs);
         document.getElementById('date').addEventListener('input', updateOutputs);
