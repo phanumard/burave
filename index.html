@@ -6,6 +6,7 @@
     <title>LINE Flex Message Generator</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Kanit:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
@@ -177,12 +178,25 @@
 
                 <!-- Right Column: Preview Section -->
                 <div class="bg-white rounded-lg shadow-lg p-6">
-                    <h2 class="text-2xl font-semibold mb-4 text-gray-800">Preview</h2>
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-2xl font-semibold text-gray-800">Preview</h2>
+                        <button
+                            id="btnExportImage"
+                            class="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-lg hover:from-green-600 hover:to-emerald-700 transition-all shadow-sm"
+                            title="Export เฉพาะส่วน Image เป็นไฟล์รูป"
+                        >
+                            <i data-lucide="download" class="w-4 h-4"></i>
+                            <span>Export Image</span>
+                        </button>
+                    </div>
                     <div class="flex justify-center">
                         <div id="previewCard" class="w-full max-w-sm bg-white border border-gray-200 rounded-lg overflow-hidden shadow-md">
                             <!-- Preview will be rendered here -->
                         </div>
                     </div>
+                    <p class="text-xs text-gray-500 mt-3 text-center">
+                        💡 กด Export Image เพื่อบันทึกเฉพาะส่วนภาพ (ไม่รวม Key Summary และปุ่ม)
+                    </p>
                 </div>
             </div>
 
@@ -422,7 +436,7 @@
             const imageUrl = getImageUrl(data.image);
 
             const html = `
-                <div class="relative h-64 bg-gray-100">
+                <div id="imagePreviewSection" class="relative h-64 bg-gray-100">
                     ${imageUrl !== '[image]' ? `
                         <img 
                             src="${imageUrl}"
@@ -845,6 +859,96 @@
             console.log('✅ Cleared all line breaks');
         }
         
+        // ===== EXPORT IMAGE FUNCTION =====
+        
+        // Export เฉพาะส่วน Image เป็นไฟล์รูป
+        async function exportImage() {
+            const imageSection = document.getElementById('imagePreviewSection');
+            
+            if (!imageSection) {
+                alert('ไม่พบส่วน preview ที่จะ export');
+                return;
+            }
+            
+            // Check if there's an image
+            const data = getFormData();
+            if (!data.image || data.image === '[image]') {
+                alert('กรุณาใส่ Image URL ก่อน export');
+                return;
+            }
+            
+            const button = document.getElementById('btnExportImage');
+            const buttonText = button.querySelector('span');
+            const buttonIcon = button.querySelector('i');
+            const originalText = buttonText.textContent;
+            
+            try {
+                // Update button state
+                button.disabled = true;
+                buttonText.textContent = 'Exporting...';
+                buttonIcon.setAttribute('data-lucide', 'loader');
+                lucide.createIcons();
+                
+                console.log('🎨 Starting image export...');
+                
+                // Use html2canvas to capture the element
+                const canvas = await html2canvas(imageSection, {
+                    backgroundColor: '#f3f4f6',
+                    scale: 2, // Higher quality (2x resolution)
+                    useCORS: true, // Enable CORS for external images
+                    allowTaint: true,
+                    logging: false
+                });
+                
+                console.log('✅ Canvas created:', canvas.width, 'x', canvas.height);
+                
+                // Convert canvas to blob
+                canvas.toBlob(function(blob) {
+                    // Create download link
+                    const url = URL.createObjectURL(blob);
+                    const link = document.createElement('a');
+                    
+                    // Generate filename
+                    const date = new Date();
+                    const dateStr = date.toISOString().slice(0, 10).replace(/-/g, '');
+                    const timeStr = date.toTimeString().slice(0, 8).replace(/:/g, '');
+                    const filename = `flex-image-${dateStr}-${timeStr}.png`;
+                    
+                    link.href = url;
+                    link.download = filename;
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    URL.revokeObjectURL(url);
+                    
+                    console.log('✅ Image exported:', filename);
+                    
+                    // Update button to success state
+                    buttonText.textContent = 'Exported!';
+                    buttonIcon.setAttribute('data-lucide', 'check');
+                    lucide.createIcons();
+                    
+                    // Reset button after 2 seconds
+                    setTimeout(() => {
+                        button.disabled = false;
+                        buttonText.textContent = originalText;
+                        buttonIcon.setAttribute('data-lucide', 'download');
+                        lucide.createIcons();
+                    }, 2000);
+                }, 'image/png', 1.0);
+                
+            } catch (error) {
+                console.error('❌ Export error:', error);
+                alert('เกิดข้อผิดพลาดในการ export รูปภาพ\n\nเหตุผล: ' + error.message + '\n\nลองตรวจสอบว่า Image URL ถูกต้องและสามารถโหลดได้');
+                
+                // Reset button
+                button.disabled = false;
+                buttonText.textContent = originalText;
+                buttonIcon.setAttribute('data-lucide', 'download');
+                lucide.createIcons();
+            }
+        }
+        
         // Event listeners
         document.getElementById('weblink').addEventListener('input', function(e) {
             if (e.target.value) {
@@ -888,6 +992,8 @@
                 }, 2000);
             });
         });
+
+        document.getElementById('btnExportImage').addEventListener('click', exportImage);
 
         // Initial render
         updateOutputs();
