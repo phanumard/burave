@@ -491,6 +491,11 @@
         function updateOutputs() {
             document.getElementById('jsonOutput').textContent = generateJSON();
             updatePreview();
+            
+            // Re-initialize lucide icons after DOM update
+            setTimeout(() => {
+                lucide.createIcons();
+            }, 100);
         }
 
         // Add debug message to UI
@@ -880,14 +885,16 @@
             const button = document.getElementById('btnExportImage');
             const buttonText = button.querySelector('span');
             const buttonIcon = button.querySelector('i');
-            const originalText = buttonText.textContent;
+            const originalText = buttonText ? buttonText.textContent : 'Export Image';
             
             try {
                 // Update button state
                 button.disabled = true;
-                buttonText.textContent = 'Exporting...';
-                buttonIcon.setAttribute('data-lucide', 'loader');
-                lucide.createIcons();
+                if (buttonText) buttonText.textContent = 'Exporting...';
+                if (buttonIcon) {
+                    buttonIcon.setAttribute('data-lucide', 'loader');
+                    lucide.createIcons();
+                }
                 
                 console.log('🎨 Starting image export...');
                 
@@ -897,13 +904,17 @@
                     scale: 2, // Higher quality (2x resolution)
                     useCORS: true, // Enable CORS for external images
                     allowTaint: true,
-                    logging: false
+                    logging: true // Enable logging for debugging
                 });
                 
                 console.log('✅ Canvas created:', canvas.width, 'x', canvas.height);
                 
                 // Convert canvas to blob
                 canvas.toBlob(function(blob) {
+                    if (!blob) {
+                        throw new Error('ไม่สามารถสร้าง image blob ได้');
+                    }
+                    
                     // Create download link
                     const url = URL.createObjectURL(blob);
                     const link = document.createElement('a');
@@ -921,31 +932,50 @@
                     document.body.removeChild(link);
                     URL.revokeObjectURL(url);
                     
-                    console.log('✅ Image exported:', filename);
+                    console.log('✅ Image exported successfully:', filename);
                     
                     // Update button to success state
-                    buttonText.textContent = 'Exported!';
-                    buttonIcon.setAttribute('data-lucide', 'check');
-                    lucide.createIcons();
+                    if (buttonText) buttonText.textContent = 'Exported!';
+                    if (buttonIcon) {
+                        buttonIcon.setAttribute('data-lucide', 'check');
+                        lucide.createIcons();
+                    }
                     
                     // Reset button after 2 seconds
                     setTimeout(() => {
                         button.disabled = false;
-                        buttonText.textContent = originalText;
-                        buttonIcon.setAttribute('data-lucide', 'download');
-                        lucide.createIcons();
+                        if (buttonText) buttonText.textContent = originalText;
+                        if (buttonIcon) {
+                            buttonIcon.setAttribute('data-lucide', 'download');
+                            lucide.createIcons();
+                        }
                     }, 2000);
                 }, 'image/png', 1.0);
                 
             } catch (error) {
                 console.error('❌ Export error:', error);
-                alert('เกิดข้อผิดพลาดในการ export รูปภาพ\n\nเหตุผล: ' + error.message + '\n\nลองตรวจสอบว่า Image URL ถูกต้องและสามารถโหลดได้');
+                
+                // More detailed error message
+                let errorMsg = 'เกิดข้อผิดพลาดในการ export รูปภาพ\n\n';
+                
+                if (error.message && error.message.includes('CORS')) {
+                    errorMsg += 'เหตุผล: รูปภาพมีปัญหาเรื่อง CORS (Cross-Origin)\n';
+                    errorMsg += 'วิธีแก้: ลองใช้รูปจาก GitHub หรือ Imgur แทน';
+                } else if (error.message) {
+                    errorMsg += 'เหตุผล: ' + error.message;
+                } else {
+                    errorMsg += 'กรุณาตรวจสอบว่า Image URL ถูกต้องและสามารถโหลดได้';
+                }
+                
+                alert(errorMsg);
                 
                 // Reset button
                 button.disabled = false;
-                buttonText.textContent = originalText;
-                buttonIcon.setAttribute('data-lucide', 'download');
-                lucide.createIcons();
+                if (buttonText) buttonText.textContent = originalText;
+                if (buttonIcon) {
+                    buttonIcon.setAttribute('data-lucide', 'download');
+                    lucide.createIcons();
+                }
             }
         }
         
@@ -997,6 +1027,9 @@
 
         // Initial render
         updateOutputs();
+        
+        // Initialize lucide icons
+        lucide.createIcons();
     </script>
 </body>
 </html>
