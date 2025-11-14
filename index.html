@@ -67,13 +67,43 @@
                         <!-- Title -->
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">Title</label>
-                            <input
-                                type="text"
-                                id="title"
-                                placeholder="จะดึงอัตโนมัติจาก Web Link หรือกรอกเอง"
-                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                            />
-                            <p class="text-xs text-gray-500 mt-1">✏️ แก้ไขได้ตามต้องการ</p>
+                            <div class="relative">
+                                <textarea
+                                    id="title"
+                                    placeholder="จะดึงอัตโนมัติจาก Web Link หรือกรอกเอง"
+                                    rows="2"
+                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-none"
+                                ></textarea>
+                                <div class="flex gap-2 mt-2">
+                                    <button
+                                        type="button"
+                                        id="btnSmartBreak"
+                                        class="flex-1 px-3 py-1.5 bg-gradient-to-r from-purple-500 to-pink-500 text-white text-xs rounded-lg hover:from-purple-600 hover:to-pink-600 transition-all shadow-sm"
+                                        title="แบ่งบรรทัดอัตโนมัติตามเครื่องหมาย / หรือความยาว"
+                                    >
+                                        ✨ Smart Break
+                                    </button>
+                                    <button
+                                        type="button"
+                                        id="btnAddLineBreak"
+                                        class="px-3 py-1.5 bg-blue-500 text-white text-xs rounded-lg hover:bg-blue-600 transition-colors shadow-sm"
+                                        title="เพิ่ม line break ที่ตำแหน่ง cursor"
+                                    >
+                                        ↩️ Add \n
+                                    </button>
+                                    <button
+                                        type="button"
+                                        id="btnClearBreaks"
+                                        class="px-3 py-1.5 bg-gray-500 text-white text-xs rounded-lg hover:bg-gray-600 transition-colors shadow-sm"
+                                        title="ลบ line breaks ทั้งหมด"
+                                    >
+                                        🧹 Clear
+                                    </button>
+                                </div>
+                            </div>
+                            <p class="text-xs text-gray-500 mt-1">
+                                ✏️ กด <strong>Smart Break</strong> เพื่อแบ่งบรรทัดอัตโนมัติ | หรือกด <strong>Add \n</strong> เพื่อแทรกที่ต้องการ
+                            </p>
                         </div>
 
                         <!-- Product (เดิมชื่อ Category) -->
@@ -408,7 +438,7 @@
                         </div>
                         <!-- Title Text at Bottom Left (aligned with body padding) - ขยับลงมาเล็กน้อย -->
                         <div class="absolute bottom-[18px] left-5 right-5">
-                            <p class="font-kanit text-white" style="font-size: ${fontSize}px; line-height: 1.3; font-weight: 500;">
+                            <p class="font-kanit text-white" style="font-size: ${fontSize}px; line-height: 1.3; font-weight: 500; white-space: pre-line;">
                                 ${data.title}
                             </p>
                             ${data.cat_title ? `
@@ -728,6 +758,93 @@
                 document.getElementById('btnRefresh').disabled = false;
             }
         }
+        
+        // ===== TITLE LINE BREAK FUNCTIONS =====
+        
+        // Smart Break: แบ่งบรรทัดอัตโนมัติ
+        function smartBreakTitle() {
+            const titleInput = document.getElementById('title');
+            let text = titleInput.value.trim();
+            
+            if (!text) {
+                alert('กรุณากรอก Title ก่อน');
+                return;
+            }
+            
+            // Strategy 1: แบ่งตามเครื่องหมาย / (ถ้ามี)
+            if (text.includes('/')) {
+                text = text.replace(/\s*\/\s*/g, '\n');
+                titleInput.value = text;
+                updateOutputs();
+                console.log('✅ Smart Break: แบ่งตามเครื่องหมาย /');
+                return;
+            }
+            
+            // Strategy 2: แบ่งตามเครื่องหมาย | (ถ้ามี)
+            if (text.includes('|')) {
+                text = text.replace(/\s*\|\s*/g, '\n');
+                titleInput.value = text;
+                updateOutputs();
+                console.log('✅ Smart Break: แบ่งตามเครื่องหมาย |');
+                return;
+            }
+            
+            // Strategy 3: แบ่งตามความยาว (ถ้ายาวเกิน 40 ตัวอักษร)
+            if (text.length > 40) {
+                // หาตำแหน่งช่องว่างที่ใกล้กลางที่สุด
+                const mid = Math.floor(text.length / 2);
+                let breakPoint = -1;
+                let minDistance = Infinity;
+                
+                // หาช่องว่างที่ใกล้จุดกึ่งกลางที่สุด
+                for (let i = 0; i < text.length; i++) {
+                    if (text[i] === ' ') {
+                        const distance = Math.abs(i - mid);
+                        if (distance < minDistance) {
+                            minDistance = distance;
+                            breakPoint = i;
+                        }
+                    }
+                }
+                
+                if (breakPoint !== -1) {
+                    text = text.substring(0, breakPoint) + '\n' + text.substring(breakPoint + 1);
+                    titleInput.value = text;
+                    updateOutputs();
+                    console.log('✅ Smart Break: แบ่งตามความยาว');
+                    return;
+                }
+            }
+            
+            alert('ไม่พบจุดที่เหมาะสมในการแบ่งบรรทัด\nลองใช้ "Add \\n" แทน');
+        }
+        
+        // Add Line Break: เพิ่ม \n ที่ตำแหน่ง cursor
+        function addLineBreak() {
+            const titleInput = document.getElementById('title');
+            const start = titleInput.selectionStart;
+            const end = titleInput.selectionEnd;
+            const text = titleInput.value;
+            
+            // แทรก \n ที่ตำแหน่ง cursor
+            titleInput.value = text.substring(0, start) + '\n' + text.substring(end);
+            
+            // ย้าย cursor ไปหลัง \n
+            titleInput.selectionStart = titleInput.selectionEnd = start + 1;
+            titleInput.focus();
+            
+            updateOutputs();
+            console.log('✅ Added line break at position:', start);
+        }
+        
+        // Clear Breaks: ลบ line breaks ทั้งหมด
+        function clearLineBreaks() {
+            const titleInput = document.getElementById('title');
+            titleInput.value = titleInput.value.replace(/\n/g, ' ').replace(/\s+/g, ' ').trim();
+            updateOutputs();
+            console.log('✅ Cleared all line breaks');
+        }
+        
         // Event listeners
         document.getElementById('weblink').addEventListener('input', function(e) {
             if (e.target.value) {
@@ -743,6 +860,12 @@
         });
 
         document.getElementById('title').addEventListener('input', updateOutputs);
+        
+        // Title line break buttons
+        document.getElementById('btnSmartBreak').addEventListener('click', smartBreakTitle);
+        document.getElementById('btnAddLineBreak').addEventListener('click', addLineBreak);
+        document.getElementById('btnClearBreaks').addEventListener('click', clearLineBreaks);
+        
         document.getElementById('cat_title').addEventListener('input', updateOutputs);
         document.getElementById('image').addEventListener('input', updateOutputs);
         document.getElementById('date').addEventListener('input', updateOutputs);
