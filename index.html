@@ -31,12 +31,10 @@
                 <p class="text-gray-600">กรอกข้อมูลเพื่อสร้าง Flex Message JSON</p>
             </div>
 
-            <div class="grid md:grid-cols-2 gap-8">
-                <!-- Left Column: Form + Preview -->
-                <div class="space-y-8">
-                    <!-- Form Section -->
-                    <div class="bg-white rounded-lg shadow-lg p-6">
-                        <h2 class="text-2xl font-semibold mb-6 text-gray-800">กรอกข้อมูล</h2>
+            <div class="grid md:grid-cols-2 gap-8 mb-8">
+                <!-- Left Column: Form Section -->
+                <div class="bg-white rounded-lg shadow-lg p-6">
+                    <h2 class="text-2xl font-semibold mb-6 text-gray-800">กรอกข้อมูล</h2>
                     
                     <div class="space-y-4">
                         <!-- Web Link -->
@@ -78,30 +76,6 @@
                             <p class="text-xs text-gray-500 mt-1">✏️ แก้ไขได้ตามต้องการ</p>
                         </div>
 
-                        <!-- Title Length Control -->
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">
-                                จำนวนตัวอักษร Title สูงสุด
-                            </label>
-                            <div class="flex items-center gap-3">
-                                <input
-                                    type="number"
-                                    id="maxTitleLength"
-                                    min="0"
-                                    max="500"
-                                    value="0"
-                                    class="w-24 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                                />
-                                <div class="flex-1">
-                                    <span id="titleLengthDisplay" class="text-sm text-gray-600">ไม่จำกัด</span>
-                                    <p class="text-xs text-gray-500">ใส่ 0 = ไม่จำกัด</p>
-                                </div>
-                            </div>
-                            <p class="text-xs text-gray-500 mt-1">
-                                ✂️ ตัด title ถ้ายาวเกินที่กำหนด (จะเติม ... ต่อท้าย)
-                            </p>
-                        </div>
-
                         <!-- Product (เดิมชื่อ Category) -->
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">Product</label>
@@ -112,38 +86,6 @@
                                 class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                             />
                             <p class="text-xs text-gray-500 mt-1">🏷️ ดึงอัตโนมัติจาก title (ส่วนก่อน /)</p>
-                        </div>
-
-                        <!-- Font Size Control -->
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">
-                                ขนาดตัวอักษร Title
-                            </label>
-                            <div class="flex items-center gap-3">
-                                <button
-                                    type="button"
-                                    id="btnDecreaseFontSize"
-                                    class="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors font-semibold"
-                                    title="ลดขนาดตัวอักษร"
-                                >
-                                    −
-                                </button>
-                                <div class="flex-1 text-center">
-                                    <span id="fontSizeDisplay" class="text-lg font-semibold text-gray-700">18px</span>
-                                    <p class="text-xs text-gray-500">ขนาดปัจจุบัน</p>
-                                </div>
-                                <button
-                                    type="button"
-                                    id="btnIncreaseFontSize"
-                                    class="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors font-semibold"
-                                    title="เพิ่มขนาดตัวอักษร"
-                                >
-                                    +
-                                </button>
-                            </div>
-                            <p class="text-xs text-gray-500 mt-1">
-                                📏 ขนาด: 12px - 36px (ปรับทีละ 2px)
-                            </p>
                         </div>
 
                         <!-- Image URL -->
@@ -203,7 +145,7 @@
                     </div>
                 </div>
 
-                <!-- Preview Section (inside left column) -->
+                <!-- Right Column: Preview Section -->
                 <div class="bg-white rounded-lg shadow-lg p-6">
                     <h2 class="text-2xl font-semibold mb-4 text-gray-800">Preview</h2>
                     <div class="flex justify-center">
@@ -214,22 +156,21 @@
                 </div>
             </div>
 
-                <!-- Right Column: JSON Output -->
-                <div class="bg-white rounded-lg shadow-lg p-6 sticky top-8 self-start">
-                    <div class="flex justify-between items-center mb-4">
-                        <h2 class="text-2xl font-semibold text-gray-800">JSON Output</h2>
-                        <button
-                            id="btnCopy"
-                            class="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
-                        >
-                            <i data-lucide="copy" class="w-4 h-4"></i>
-                            <span id="copyText">Copy</span>
-                        </button>
-                    </div>
-                    
-                    <div class="bg-gray-900 rounded-lg p-4 overflow-auto max-h-[calc(100vh-200px)]">
-                        <pre id="jsonOutput" class="text-green-400 text-sm font-mono"></pre>
-                    </div>
+            <!-- Bottom: JSON Output Section (Full Width) -->
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-2xl font-semibold text-gray-800">JSON Output</h2>
+                    <button
+                        id="btnCopy"
+                        class="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
+                    >
+                        <i data-lucide="copy" class="w-4 h-4"></i>
+                        <span id="copyText">Copy</span>
+                    </button>
+                </div>
+                
+                <div class="bg-gray-900 rounded-lg p-4 overflow-auto max-h-96">
+                    <pre id="jsonOutput" class="text-green-400 text-sm font-mono"></pre>
                 </div>
             </div>
         </div>
@@ -241,7 +182,6 @@
 
         // State management
         let fontSize = 18; // Default font size in pixels
-        let maxTitleLength = 0; // 0 = unlimited
         let isLoading = false;
 
         // Get today's date in DDMMYYYY format
@@ -256,23 +196,10 @@
         // Initialize date
         document.getElementById('date').value = getTodayDate();
 
-        // Truncate title if needed
-        function truncateTitle(title) {
-            if (!title) return title;
-            if (maxTitleLength === 0 || title.length <= maxTitleLength) {
-                return title;
-            }
-            return title.substring(0, maxTitleLength) + '...';
-        }
-
         // Get form data
         function getFormData() {
-            const rawTitle = document.getElementById('title').value || '[title]';
-            const truncatedTitle = truncateTitle(rawTitle);
-            
             return {
-                title: truncatedTitle,
-                rawTitle: rawTitle, // Keep original for display
+                title: document.getElementById('title').value || '[title]',
                 cat_title: document.getElementById('cat_title').value || '',
                 image: document.getElementById('image').value || '[image]',
                 weblink: document.getElementById('weblink').value || '[weblink]',
@@ -801,36 +728,7 @@
                 document.getElementById('btnRefresh').disabled = false;
             }
         }
-
         // Event listeners
-        document.getElementById('btnIncreaseFontSize').addEventListener('click', function() {
-            if (fontSize < 36) {
-                fontSize += 2;
-                document.getElementById('fontSizeDisplay').textContent = fontSize + 'px';
-                updateOutputs();
-            }
-        });
-
-        document.getElementById('btnDecreaseFontSize').addEventListener('click', function() {
-            if (fontSize > 12) {
-                fontSize -= 2;
-                document.getElementById('fontSizeDisplay').textContent = fontSize + 'px';
-                updateOutputs();
-            }
-        });
-
-        document.getElementById('maxTitleLength').addEventListener('input', function(e) {
-            maxTitleLength = parseInt(e.target.value) || 0;
-            const display = document.getElementById('titleLengthDisplay');
-            if (maxTitleLength === 0) {
-                display.textContent = 'ไม่จำกัด';
-            } else {
-                const currentTitle = document.getElementById('title').value;
-                display.textContent = `จำกัด ${maxTitleLength} ตัว (ปัจจุบัน: ${currentTitle.length} ตัว)`;
-            }
-            updateOutputs();
-        });
-
         document.getElementById('weblink').addEventListener('input', function(e) {
             if (e.target.value) {
                 fetchMetadata(e.target.value);
@@ -844,15 +742,7 @@
             }
         });
 
-        document.getElementById('title').addEventListener('input', function() {
-            updateOutputs();
-            // Update title length display
-            if (maxTitleLength > 0) {
-                const currentTitle = this.value;
-                document.getElementById('titleLengthDisplay').textContent = 
-                    `จำกัด ${maxTitleLength} ตัว (ปัจจุบัน: ${currentTitle.length} ตัว)`;
-            }
-        });
+        document.getElementById('title').addEventListener('input', updateOutputs);
         document.getElementById('cat_title').addEventListener('input', updateOutputs);
         document.getElementById('image').addEventListener('input', updateOutputs);
         document.getElementById('date').addEventListener('input', updateOutputs);
