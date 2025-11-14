@@ -300,10 +300,10 @@
                                     "type": "linearGradient",
                                     "angle": "0deg",
                                     "startColor": "#00000000",
-                                    "endColor": "#000000CC"
+                                    "endColor": "#000000DD"
                                 },
                                 "width": "100%",
-                                "height": "100%",
+                                "height": "60%",
                                 "offsetBottom": "0px",
                                 "offsetStart": "0px",
                                 "offsetEnd": "0px"
@@ -343,8 +343,12 @@
                                         "layout": "vertical",
                                         "contents": [
                                             {
-                                                "type": "separator",
-                                                "color": "#BD8B66",
+                                                "type": "box",
+                                                "layout": "vertical",
+                                                "contents": [],
+                                                "width": "60px",
+                                                "height": "1px",
+                                                "backgroundColor": "#BD8B66",
                                                 "margin": "xs"
                                             },
                                             {
@@ -443,8 +447,8 @@
                             class="absolute inset-0 w-full h-full object-cover"
                             onerror="this.style.display='none'; this.parentElement.innerHTML='<div class=\\'absolute inset-0 flex items-center justify-center text-gray-400\\'>Image Preview</div>';"
                         />
-                        <!-- Gradient Overlay -->
-                        <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent"></div>
+                        <!-- Gradient Overlay (60% from bottom) -->
+                        <div class="absolute bottom-0 left-0 right-0 h-[60%] bg-gradient-to-t from-black/87 via-black/40 to-transparent"></div>
                         <!-- Logo at Top Left (aligned with body padding) -->
                         <div class="absolute top-0 left-5 w-20 pt-4">
                             <img src="https://phanumard.github.io/burave/eic-logo-black.png" alt="EIC Logo" class="w-full" />
@@ -456,7 +460,7 @@
                             </p>
                             ${data.cat_title ? `
                                 <div class="mt-1 inline-block">
-                                    <div class="h-px mb-1" style="background-color: #BD8B66;"></div>
+                                    <div class="h-px mb-1" style="background-color: #BD8B66; width: 60px;"></div>
                                     <p class="text-white" style="font-size: ${Math.max(10, Math.round(fontSize * 0.56))}px; font-weight: 400;">
                                         ${data.cat_title}
                                     </p>
