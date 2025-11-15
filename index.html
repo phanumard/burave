@@ -404,7 +404,7 @@
                                     "label": "Read more",
                                     "uri": getWebLinkWithUTM(data.weblink)
                                 },
-                                "color": "#6B46C1"
+                                "color": "#321A5A"
                             },
                             {
                                 "type": "button",
@@ -436,29 +436,30 @@
             const imageUrl = getImageUrl(data.image);
 
             const html = `
-                <div id="imagePreviewSection" class="relative h-64 bg-gray-100">
+                <div id="imagePreviewSection" class="relative h-64 bg-white" style="overflow: hidden; border: none; outline: none;">
                     ${imageUrl !== '[image]' ? `
                         <img 
                             src="${imageUrl}"
                             alt="${data.title}"
                             class="absolute inset-0 w-full h-full object-cover"
                             crossorigin="anonymous"
+                            style="border: none; outline: none; display: block;"
                             onerror="this.style.display='none'; this.parentElement.innerHTML='<div class=\\'absolute inset-0 flex items-center justify-center text-gray-400\\'>Image Preview</div>';"
                         />
                         <!-- Gradient Overlay (50% from bottom, 90% to 0%) -->
-                        <div class="absolute bottom-0 left-0 right-0 h-[50%] bg-gradient-to-t from-black/90 to-transparent"></div>
+                        <div class="absolute bottom-0 left-0 right-0 h-[50%]" style="background: linear-gradient(to top, rgba(0, 0, 0, 0.9) 0%, rgba(0, 0, 0, 0) 100%); border: none; outline: none;"></div>
                         <!-- Logo at Top Left (aligned with body padding) -->
-                        <div class="absolute top-0 left-5 w-20 pt-4">
-                            <img src="https://phanumard.github.io/burave/eic-logo-black.png" alt="EIC Logo" class="w-full" crossorigin="anonymous" />
+                        <div class="absolute top-0 left-5 w-20 pt-4" style="border: none; outline: none;">
+                            <img src="https://phanumard.github.io/burave/eic-logo-black.png" alt="EIC Logo" class="w-full" crossorigin="anonymous" style="border: none; outline: none; display: block;" />
                         </div>
                         <!-- Title Text at Bottom Left (aligned with body padding) - ขยับลงมาเล็กน้อย -->
-                        <div class="absolute bottom-[18px] left-5 right-5">
-                            <p class="font-kanit text-white" style="font-size: ${fontSize}px; line-height: 1.3; font-weight: 500; white-space: pre-line;">
+                        <div class="absolute bottom-[18px] left-5 right-5" style="border: none; outline: none;">
+                            <p class="font-kanit text-white" style="font-size: ${fontSize}px; line-height: 1.3; font-weight: 500; white-space: pre-line; border: none; outline: none;">
                                 ${data.title}
                             </p>
                             ${data.cat_title ? `
-                                <div class="mt-2">
-                                    <p class="text-white" style="font-size: 8px; font-weight: 400; opacity: 0.9;">
+                                <div class="mt-2" style="border: none; outline: none;">
+                                    <p class="text-white" style="font-size: 8px; font-weight: 400; opacity: 0.9; border: none; outline: none;">
                                         ${data.cat_title}
                                     </p>
                                 </div>
@@ -931,7 +932,7 @@
                 
                 // Use html2canvas to capture the element
                 const canvas = await html2canvas(imageSection, {
-                    backgroundColor: null,
+                    backgroundColor: '#ffffff', // White background
                     scale: 4, // Very high quality (4x resolution)
                     useCORS: true, // Enable CORS for external images
                     allowTaint: false, // Don't allow tainted canvas for better CORS handling
@@ -939,17 +940,33 @@
                     imageTimeout: 0, // No timeout since we already waited
                     foreignObjectRendering: false, // Better compatibility
                     proxy: null, // Disable proxy
+                    removeContainer: true, // Clean up after rendering
                     onclone: function(clonedDoc) {
                         console.log('🎨 Cloning document for canvas...');
                         const clonedSection = clonedDoc.getElementById('imagePreviewSection');
                         if (clonedSection) {
                             console.log('✅ Cloned section found');
                             
+                            // Remove all borders and outlines
+                            clonedSection.style.border = 'none';
+                            clonedSection.style.outline = 'none';
+                            clonedSection.style.boxShadow = 'none';
+                            
+                            // Handle all elements
+                            const allElements = clonedSection.getElementsByTagName('*');
+                            Array.from(allElements).forEach(el => {
+                                el.style.border = 'none';
+                                el.style.outline = 'none';
+                                el.style.boxShadow = 'none';
+                            });
+                            
                             // Handle images with CORS issues
                             const clonedImages = clonedSection.getElementsByTagName('img');
                             Array.from(clonedImages).forEach(img => {
-                                // Add crossorigin attribute to help with CORS
                                 img.crossOrigin = 'anonymous';
+                                img.style.display = 'block';
+                                img.style.border = 'none';
+                                img.style.outline = 'none';
                                 console.log('🔒 Set crossOrigin for image:', img.src);
                             });
                         }
