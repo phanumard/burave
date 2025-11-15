@@ -196,7 +196,7 @@
                         </button>
                     </div>
                     <div class="flex justify-center">
-                        <div id="previewCard" class="w-full max-w-sm bg-white border border-gray-200 rounded-lg overflow-hidden shadow-md">
+                        <div id="previewCard" class="w-full max-w-sm bg-white overflow-hidden" style="border: none; outline: none; box-shadow: none; margin: 0; padding: 0;">
                             <!-- Preview will be rendered here -->
                         </div>
                     </div>
@@ -436,7 +436,7 @@
             const imageUrl = getImageUrl(data.image);
 
             const html = `
-                <div id="imagePreviewSection" class="relative h-64" style="width: 100%; overflow: hidden; border: none; outline: none; margin: 0; padding: 0; background-color: #ffffff; box-sizing: border-box;">
+                <div id="imagePreviewSection" style="position: relative; width: 100%; padding-top: 70%; overflow: hidden; border: none; outline: none; margin: 0; padding-left: 0; padding-right: 0; padding-bottom: 0; background-color: #ffffff; box-sizing: border-box;">
                     ${imageUrl !== '[image]' ? `
                         <img 
                             src="${imageUrl}"
@@ -875,6 +875,17 @@
                 return;
             }
             
+            // Remove any borders from parent elements temporarily
+            const previewCard = document.getElementById('previewCard');
+            const originalCardStyle = previewCard ? previewCard.getAttribute('style') : null;
+            if (previewCard) {
+                previewCard.style.border = 'none';
+                previewCard.style.outline = 'none';
+                previewCard.style.boxShadow = 'none';
+                previewCard.style.padding = '0';
+                previewCard.style.margin = '0';
+            }
+            
             // Check if there's an image
             const data = getFormData();
             if (!data.image || data.image === '[image]') {
@@ -940,17 +951,23 @@
                     foreignObjectRendering: false, // Better compatibility
                     proxy: null, // Disable proxy
                     removeContainer: true, // Clean up after rendering
-                    windowWidth: imageSection.offsetWidth, // Exact width
-                    windowHeight: imageSection.offsetHeight, // Exact height
                     onclone: function(clonedDoc) {
                         console.log('🎨 Cloning document for canvas...');
                         const clonedSection = clonedDoc.getElementById('imagePreviewSection');
                         if (clonedSection) {
                             console.log('✅ Cloned section found');
                             
-                            // Set exact dimensions and remove all spacing
-                            clonedSection.style.width = '100%';
-                            clonedSection.style.height = '256px';
+                            // Get the actual width and calculate height based on 20:14 aspect ratio
+                            const actualWidth = imageSection.offsetWidth;
+                            const aspectHeight = Math.round(actualWidth * 14 / 20); // 20:14 ratio
+                            
+                            console.log('📐 Calculated dimensions:', actualWidth, 'x', aspectHeight);
+                            
+                            // Set exact dimensions with aspect ratio 20:14
+                            clonedSection.style.position = 'relative';
+                            clonedSection.style.width = actualWidth + 'px';
+                            clonedSection.style.height = aspectHeight + 'px';
+                            clonedSection.style.paddingTop = '0';
                             clonedSection.style.margin = '0';
                             clonedSection.style.padding = '0';
                             clonedSection.style.border = 'none';
@@ -958,15 +975,14 @@
                             clonedSection.style.boxShadow = 'none';
                             clonedSection.style.overflow = 'hidden';
                             clonedSection.style.boxSizing = 'border-box';
+                            clonedSection.style.backgroundColor = '#ffffff';
                             
-                            // Handle all elements
+                            // Handle all child elements
                             const allElements = clonedSection.getElementsByTagName('*');
                             Array.from(allElements).forEach(el => {
                                 el.style.border = 'none';
                                 el.style.outline = 'none';
                                 el.style.boxShadow = 'none';
-                                el.style.margin = el.style.margin || '0';
-                                el.style.padding = el.style.padding || '0';
                             });
                             
                             // Handle images with CORS issues
@@ -1081,6 +1097,9 @@
                     buttonIcon.setAttribute('data-lucide', 'download');
                     lucide.createIcons();
                 }
+            } finally {
+                // Restore original styles (if needed in the future)
+                // For now, we keep the clean style since it's better for display
             }
         }
         
