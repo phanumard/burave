@@ -119,7 +119,9 @@
                                 placeholder="จะดึงอัตโนมัติจาก Web Link"
                                 class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                             />
-                            <p class="text-xs text-gray-500 mt-1">🏷️ ดึงอัตโนมัติจาก title (ส่วนก่อน /)</p>
+                            <p class="text-xs text-gray-500 mt-1">
+                                🏷️ Font size: 10px (ขั้นต่ำของ LINE) | ⚠️ LINE ไม่รับค่าต่ำกว่า 10px
+                            </p>
                         </div>
 
                         <!-- Image URL -->
@@ -346,25 +348,16 @@
                                         "layout": "vertical",
                                         "contents": [
                                             {
-                                                "type": "box",
-                                                "layout": "vertical",
-                                                "contents": [],
-                                                "width": "60px",
-                                                "height": "1px",
-                                                "backgroundColor": "#BD8B66",
-                                                "margin": "xs"
-                                            },
-                                            {
                                                 "type": "text",
                                                 "text": data.cat_title || "",
-                                                "size": `${Math.max(10, Math.round(fontSize * 0.56))}px`,
+                                                "size": "10px",
                                                 "color": "#FFFFFF",
                                                 "weight": "regular",
                                                 "wrap": true,
-                                                "margin": "xs"
+                                                "margin": "md"
                                             }
                                         ],
-                                        "margin": "xs"
+                                        "margin": "md"
                                     }
                                 ],
                                 "position": "absolute",
@@ -462,9 +455,8 @@
                                 ${data.title}
                             </p>
                             ${data.cat_title ? `
-                                <div class="mt-1 inline-block">
-                                    <div class="h-px mb-1" style="background-color: #BD8B66; width: 60px;"></div>
-                                    <p class="text-white" style="font-size: ${Math.max(10, Math.round(fontSize * 0.56))}px; font-weight: 400;">
+                                <div class="mt-2">
+                                    <p class="text-white" style="font-size: 8px; font-weight: 400; opacity: 0.9;">
                                         ${data.cat_title}
                                     </p>
                                 </div>
@@ -896,7 +888,7 @@
             try {
                 // Update button state
                 button.disabled = true;
-                if (buttonText) buttonText.textContent = 'Exporting...';
+                if (buttonText) buttonText.textContent = 'Loading image...';
                 if (buttonIcon) {
                     buttonIcon.setAttribute('data-lucide', 'loader');
                     lucide.createIcons();
@@ -904,13 +896,29 @@
                 
                 console.log('🎨 Starting image export...');
                 
+                // Wait for image to load completely
+                const img = imageSection.querySelector('img');
+                if (img && !img.complete) {
+                    console.log('⏳ Waiting for image to load...');
+                    await new Promise((resolve, reject) => {
+                        img.onload = resolve;
+                        img.onerror = () => reject(new Error('Failed to load image'));
+                        // Timeout after 10 seconds
+                        setTimeout(() => reject(new Error('Image load timeout')), 10000);
+                    });
+                }
+                
+                if (buttonText) buttonText.textContent = 'Capturing...';
+                
                 // Use html2canvas to capture the element
                 const canvas = await html2canvas(imageSection, {
                     backgroundColor: '#f3f4f6',
                     scale: 2, // Higher quality (2x resolution)
                     useCORS: true, // Enable CORS for external images
-                    allowTaint: true,
-                    logging: true // Enable logging for debugging
+                    allowTaint: false, // More strict CORS
+                    logging: true, // Enable logging for debugging
+                    imageTimeout: 15000, // Wait up to 15s for images
+                    removeContainer: true
                 });
                 
                 console.log('✅ Canvas created:', canvas.width, 'x', canvas.height);
@@ -964,9 +972,15 @@
                 // More detailed error message
                 let errorMsg = 'เกิดข้อผิดพลาดในการ export รูปภาพ\n\n';
                 
-                if (error.message && error.message.includes('CORS')) {
+                if (error.message && error.message.includes('load')) {
+                    errorMsg += 'เหตุผล: ไม่สามารถโหลดรูปภาพได้\n';
+                    errorMsg += 'วิธีแก้:\n';
+                    errorMsg += '1. ตรวจสอบว่า Image URL ถูกต้อง\n';
+                    errorMsg += '2. รอให้รูปโหลดเสร็จก่อนกด Export\n';
+                    errorMsg += '3. ลองใช้รูปจาก GitHub หรือ Imgur';
+                } else if (error.message && error.message.includes('CORS')) {
                     errorMsg += 'เหตุผล: รูปภาพมีปัญหาเรื่อง CORS (Cross-Origin)\n';
-                    errorMsg += 'วิธีแก้: ลองใช้รูปจาก GitHub หรือ Imgur แทน';
+                    errorMsg += 'วิธีแก้: ใช้รูปจาก GitHub หรือ Imgur แทน';
                 } else if (error.message) {
                     errorMsg += 'เหตุผล: ' + error.message;
                 } else {
