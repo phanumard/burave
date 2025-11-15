@@ -59,9 +59,17 @@
                                 >
                                     🔄
                                 </button>
+                                <button
+                                    type="button"
+                                    id="btnGenerateAI"
+                                    class="px-4 py-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-lg hover:from-purple-600 hover:to-pink-600 disabled:from-gray-300 disabled:to-gray-400 disabled:cursor-not-allowed transition-all shadow-sm"
+                                    title="Generate AI Cover Image"
+                                >
+                                    🎨
+                                </button>
                             </div>
                             <p class="text-xs text-gray-500 mt-1">
-                                📌 ระบบจะดึงภาพหน้าปก, ชื่อบทความ และคำอธิบายอัตโนมัติ
+                                📌 ระบบจะดึงภาพหน้าปก, ชื่อบทความ และคำอธิบายอัตโนมัติ | 🎨 = AI Generate Cover
                             </p>
                         </div>
 
@@ -135,7 +143,8 @@
                             />
                             <p class="text-xs text-gray-500 mt-1">
                                 🖼️ ดึงอัตโนมัติจาก Web Link หรือใส่ URL เต็ม / ชื่อไฟล์ใน GitHub<br/>
-                                <span class="text-orange-600">⚠️ รูปจาก scbeic.com มีปัญหา CORS - แนะนำให้ดาวน์โหลดแล้วอัปโหลดใหม่</span>
+                                <span class="text-orange-600">⚠️ รูปจาก scbeic.com มีปัญหา CORS - แนะนำให้ดาวน์โหลดแล้วอัปโหลดใหม่</span><br/>
+                                <span class="text-purple-600">✨ หรือกดปุ่ม 🎨 ด้านบนเพื่อให้ AI สร้างรูปให้อัตโนมัติ</span>
                             </p>
                         </div>
 
@@ -864,6 +873,88 @@
             console.log('✅ Cleared all line breaks');
         }
         
+        // ===== AI IMAGE GENERATION FUNCTION =====
+        
+        async function generateAICover() {
+            const button = document.getElementById('btnGenerateAI');
+            const titleInput = document.getElementById('title');
+            const descriptionInput = document.getElementById('keysum');
+            const imageInput = document.getElementById('image');
+            
+            // Get title and description
+            const title = titleInput.value.trim();
+            const description = descriptionInput.value.trim();
+            
+            if (!title && !description) {
+                alert('กรุณากรอก Title หรือ Key Summary ก่อนเพื่อให้ AI สร้างรูป');
+                return;
+            }
+            
+            try {
+                // Disable button and show loading
+                button.disabled = true;
+                button.textContent = '⏳';
+                
+                // Add debug message
+                addDebugMessage('🎨 กำลังสร้างรูปด้วย AI...', 'info');
+                
+                // Create prompt for AI (in English for better results)
+                let prompt = '';
+                
+                // Translate key terms to English for better AI results
+                const titleForAI = title.replace(/\n/g, ' ');
+                const descForAI = description.substring(0, 200); // Limit description length
+                
+                // Build prompt
+                if (titleForAI && descForAI) {
+                    prompt = `Professional business illustration about: ${titleForAI}. ${descForAI}. Modern, clean, corporate style, suitable for economic report cover`;
+                } else if (titleForAI) {
+                    prompt = `Professional business illustration about: ${titleForAI}. Modern, clean, corporate style, suitable for economic report cover`;
+                } else {
+                    prompt = `Professional business illustration about: ${descForAI}. Modern, clean, corporate style, suitable for economic report cover`;
+                }
+                
+                // Add photography style keywords for better results
+                prompt += ', high quality, professional photography, business concept, abstract';
+                
+                console.log('🎨 AI Prompt:', prompt);
+                
+                // URL encode the prompt
+                const encodedPrompt = encodeURIComponent(prompt);
+                
+                // Generate image URL using Pollinations.ai
+                // This service is free and doesn't require API key
+                const imageUrl = `https://image.pollinations.ai/prompt/${encodedPrompt}?width=1200&height=840&nologo=true&enhance=true`;
+                
+                console.log('🖼️ Generated Image URL:', imageUrl);
+                
+                // Set the image URL
+                imageInput.value = imageUrl;
+                
+                // Update outputs to show the new image
+                updateOutputs();
+                
+                // Show success message
+                addDebugMessage('✅ สร้างรูปด้วย AI สำเร็จ!', 'success');
+                
+                // Reset button after a short delay
+                setTimeout(() => {
+                    button.disabled = false;
+                    button.textContent = '🎨';
+                }, 1500);
+                
+            } catch (error) {
+                console.error('❌ AI Generation error:', error);
+                addDebugMessage('❌ เกิดข้อผิดพลาดในการสร้างรูป: ' + error.message, 'error');
+                
+                // Reset button
+                button.disabled = false;
+                button.textContent = '🎨';
+                
+                alert('ไม่สามารถสร้างรูปด้วย AI ได้\nกรุณาลองอีกครั้ง');
+            }
+        }
+        
         // ===== EXPORT IMAGE FUNCTION =====
         
         // Export เฉพาะส่วน Image เป็นไฟล์รูป
@@ -1116,6 +1207,8 @@
                 fetchMetadata(url);
             }
         });
+
+        document.getElementById('btnGenerateAI').addEventListener('click', generateAICover);
 
         document.getElementById('title').addEventListener('input', updateOutputs);
         
