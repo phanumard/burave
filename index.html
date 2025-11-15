@@ -120,7 +120,7 @@
                                 class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                             />
                             <p class="text-xs text-gray-500 mt-1">
-                                🏷️ Font size: 10px (ขั้นต่ำของ LINE) | ⚠️ LINE ไม่รับค่าต่ำกว่า 10px
+                                🏷️ Font size: 8px (เล็กและเหมาะสม)
                             </p>
                         </div>
 
@@ -200,7 +200,7 @@
                         </div>
                     </div>
                     <p class="text-xs text-gray-500 mt-3 text-center">
-                        💡 กด Export Image เพื่อบันทึกเฉพาะส่วนภาพ (ไม่รวม Key Summary และปุ่ม)
+                        💡 Export ความละเอียด 4x (สูงมาก) | รอให้รูปโหลดเสร็จก่อนกด Export
                     </p>
                 </div>
             </div>
@@ -305,7 +305,7 @@
                                     "type": "linearGradient",
                                     "angle": "0deg",
                                     "startColor": "#00000000",
-                                    "endColor": "#000000BB"
+                                    "endColor": "#000000E6"
                                 },
                                 "width": "100%",
                                 "height": "50%",
@@ -350,7 +350,7 @@
                                             {
                                                 "type": "text",
                                                 "text": data.cat_title || "",
-                                                "size": "10px",
+                                                "size": "8px",
                                                 "color": "#FFFFFF",
                                                 "weight": "regular",
                                                 "wrap": true,
@@ -443,8 +443,8 @@
                             class="absolute inset-0 w-full h-full object-cover"
                             onerror="this.style.display='none'; this.parentElement.innerHTML='<div class=\\'absolute inset-0 flex items-center justify-center text-gray-400\\'>Image Preview</div>';"
                         />
-                        <!-- Gradient Overlay (50% from bottom, softer) -->
-                        <div class="absolute bottom-0 left-0 right-0 h-[50%] bg-gradient-to-t from-black/73 via-black/30 to-transparent"></div>
+                        <!-- Gradient Overlay (50% from bottom, 90% to 0%) -->
+                        <div class="absolute bottom-0 left-0 right-0 h-[50%] bg-gradient-to-t from-black/90 to-transparent"></div>
                         <!-- Logo at Top Left (aligned with body padding) -->
                         <div class="absolute top-0 left-5 w-20 pt-4">
                             <img src="https://phanumard.github.io/burave/eic-logo-black.png" alt="EIC Logo" class="w-full" />
@@ -895,39 +895,66 @@
                 }
                 
                 console.log('🎨 Starting image export...');
+                console.log('Image URL:', data.image);
                 
-                // Wait for image to load completely
-                const img = imageSection.querySelector('img');
-                if (img && !img.complete) {
-                    console.log('⏳ Waiting for image to load...');
-                    await new Promise((resolve, reject) => {
-                        img.onload = resolve;
-                        img.onerror = () => reject(new Error('Failed to load image'));
-                        // Timeout after 10 seconds
-                        setTimeout(() => reject(new Error('Image load timeout')), 10000);
+                // Wait for all images to load
+                const images = imageSection.querySelectorAll('img');
+                const imageLoadPromises = Array.from(images).map(img => {
+                    if (img.complete) {
+                        console.log('✅ Image already loaded:', img.src);
+                        return Promise.resolve();
+                    }
+                    console.log('⏳ Waiting for image:', img.src);
+                    return new Promise((resolve, reject) => {
+                        img.onload = () => {
+                            console.log('✅ Image loaded:', img.src);
+                            resolve();
+                        };
+                        img.onerror = () => {
+                            console.error('❌ Image load error:', img.src);
+                            reject(new Error(`Failed to load image: ${img.src}`));
+                        };
+                        // Timeout after 15 seconds
+                        setTimeout(() => reject(new Error('Image load timeout')), 15000);
                     });
-                }
+                });
+                
+                await Promise.all(imageLoadPromises);
+                console.log('✅ All images loaded');
                 
                 if (buttonText) buttonText.textContent = 'Capturing...';
                 
+                // Small delay to ensure rendering
+                await new Promise(resolve => setTimeout(resolve, 500));
+                
                 // Use html2canvas to capture the element
                 const canvas = await html2canvas(imageSection, {
-                    backgroundColor: '#f3f4f6',
-                    scale: 2, // Higher quality (2x resolution)
+                    backgroundColor: null,
+                    scale: 4, // Very high quality (4x resolution)
                     useCORS: true, // Enable CORS for external images
-                    allowTaint: false, // More strict CORS
+                    allowTaint: true, // Allow cross-origin images
                     logging: true, // Enable logging for debugging
-                    imageTimeout: 15000, // Wait up to 15s for images
-                    removeContainer: true
+                    imageTimeout: 0, // No timeout since we already waited
+                    foreignObjectRendering: false, // Better compatibility
+                    onclone: function(clonedDoc) {
+                        console.log('🎨 Cloning document for canvas...');
+                        // Ensure fonts are loaded in cloned document
+                        const clonedSection = clonedDoc.getElementById('imagePreviewSection');
+                        if (clonedSection) {
+                            console.log('✅ Cloned section found');
+                        }
+                    }
                 });
                 
-                console.log('✅ Canvas created:', canvas.width, 'x', canvas.height);
+                console.log('✅ Canvas created:', canvas.width, 'x', canvas.height, 'pixels');
                 
                 // Convert canvas to blob
                 canvas.toBlob(function(blob) {
                     if (!blob) {
                         throw new Error('ไม่สามารถสร้าง image blob ได้');
                     }
+                    
+                    console.log('✅ Blob created, size:', Math.round(blob.size / 1024), 'KB');
                     
                     // Create download link
                     const url = URL.createObjectURL(blob);
@@ -937,14 +964,16 @@
                     const date = new Date();
                     const dateStr = date.toISOString().slice(0, 10).replace(/-/g, '');
                     const timeStr = date.toTimeString().slice(0, 8).replace(/:/g, '');
-                    const filename = `flex-image-${dateStr}-${timeStr}.png`;
+                    const filename = `flex-image-${dateStr}-${timeStr}-4x.png`;
                     
                     link.href = url;
                     link.download = filename;
                     document.body.appendChild(link);
                     link.click();
                     document.body.removeChild(link);
-                    URL.revokeObjectURL(url);
+                    
+                    // Don't revoke URL immediately, wait a bit
+                    setTimeout(() => URL.revokeObjectURL(url), 1000);
                     
                     console.log('✅ Image exported successfully:', filename);
                     
@@ -968,23 +997,32 @@
                 
             } catch (error) {
                 console.error('❌ Export error:', error);
+                console.error('Error stack:', error.stack);
                 
                 // More detailed error message
-                let errorMsg = 'เกิดข้อผิดพลาดในการ export รูปภาพ\n\n';
+                let errorMsg = '❌ เกิดข้อผิดพลาดในการ export รูปภาพ\n\n';
                 
                 if (error.message && error.message.includes('load')) {
-                    errorMsg += 'เหตุผล: ไม่สามารถโหลดรูปภาพได้\n';
-                    errorMsg += 'วิธีแก้:\n';
+                    errorMsg += '📋 ปัญหา: ไม่สามารถโหลดรูปภาพได้\n\n';
+                    errorMsg += '✅ วิธีแก้:\n';
                     errorMsg += '1. ตรวจสอบว่า Image URL ถูกต้อง\n';
-                    errorMsg += '2. รอให้รูปโหลดเสร็จก่อนกด Export\n';
-                    errorMsg += '3. ลองใช้รูปจาก GitHub หรือ Imgur';
+                    errorMsg += '2. รอให้รูปโหลดเสร็จใน Preview ก่อน\n';
+                    errorMsg += '3. ลองใช้รูปจาก:\n';
+                    errorMsg += '   • GitHub: raw.githubusercontent.com\n';
+                    errorMsg += '   • Imgur: i.imgur.com\n\n';
+                    errorMsg += '💡 กด F12 → Console เพื่อดู error ละเอียด';
+                } else if (error.message && error.message.includes('timeout')) {
+                    errorMsg += '📋 ปัญหา: รูปโหลดช้าเกินไป (timeout)\n\n';
+                    errorMsg += '✅ วิธีแก้:\n';
+                    errorMsg += '1. ตรวจสอบ internet connection\n';
+                    errorMsg += '2. ลองใช้รูปที่เล็กกว่า\n';
+                    errorMsg += '3. ลองอีกครั้ง';
                 } else if (error.message && error.message.includes('CORS')) {
-                    errorMsg += 'เหตุผล: รูปภาพมีปัญหาเรื่อง CORS (Cross-Origin)\n';
-                    errorMsg += 'วิธีแก้: ใช้รูปจาก GitHub หรือ Imgur แทน';
-                } else if (error.message) {
-                    errorMsg += 'เหตุผล: ' + error.message;
+                    errorMsg += '📋 ปัญหา: รูปภาพมีปัญหา CORS\n\n';
+                    errorMsg += '✅ วิธีแก้: ใช้รูปจาก GitHub หรือ Imgur';
                 } else {
-                    errorMsg += 'กรุณาตรวจสอบว่า Image URL ถูกต้องและสามารถโหลดได้';
+                    errorMsg += '📋 ปัญหา: ' + error.message + '\n\n';
+                    errorMsg += '💡 กด F12 → Console เพื่อดู error ละเอียด';
                 }
                 
                 alert(errorMsg);
