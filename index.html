@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SCB EIC Artwork Generator</title>
+    <title>LINE Flex Message Generator</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
@@ -28,8 +28,8 @@
         <div class="max-w-6xl mx-auto">
             <!-- Header -->
             <div class="text-center mb-8">
-                <h1 class="text-4xl font-bold text-gray-800 mb-2">SCB EIC Artwork Generator</h1>
-                <p class="text-gray-600">สร้าง Flex Message และ Export รูปภาพสำหรับ SCB EIC</p>
+                <h1 class="text-4xl font-bold text-gray-800 mb-2">LINE Flex Message Generator</h1>
+                <p class="text-gray-600">กรอกข้อมูลเพื่อสร้าง Flex Message JSON</p>
             </div>
 
             <div class="grid md:grid-cols-2 gap-8 mb-8">
@@ -48,7 +48,7 @@
                                 <input
                                     type="url"
                                     id="weblink"
-                                    placeholder="https://www.scbeic.com/th/detail/product/..."
+                                    placeholder="https://example.com/article"
                                     class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                                 />
                                 <button
@@ -98,94 +98,128 @@
                                     <button
                                         type="button"
                                         id="btnClearBreaks"
-                                        class="px-3 py-1.5 bg-red-500 text-white text-xs rounded-lg hover:bg-red-600 transition-colors shadow-sm"
+                                        class="px-3 py-1.5 bg-gray-500 text-white text-xs rounded-lg hover:bg-gray-600 transition-colors shadow-sm"
                                         title="ลบ line breaks ทั้งหมด"
                                     >
-                                        🗑️ Clear
+                                        🧹 Clear
                                     </button>
                                 </div>
                             </div>
+                            <p class="text-xs text-gray-500 mt-1">
+                                ✏️ กด <strong>Smart Break</strong> เพื่อแบ่งบรรทัดอัตโนมัติ | หรือกด <strong>Add \n</strong> เพื่อแทรกที่ต้องการ
+                            </p>
                         </div>
 
-                        <!-- Description -->
+                        <!-- Product (เดิมชื่อ Category) -->
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Description</label>
-                            <textarea
-                                id="description"
-                                placeholder="จะดึงอัตโนมัติจาก Web Link หรือกรอกเอง"
-                                rows="3"
-                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-none"
-                            ></textarea>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Product</label>
+                            <input
+                                type="text"
+                                id="cat_title"
+                                placeholder="จะดึงอัตโนมัติจาก Web Link"
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                            />
+                            <p class="text-xs text-gray-500 mt-1">
+                                🏷️ Font size: 8px (เล็กและเหมาะสม)
+                            </p>
                         </div>
 
                         <!-- Image URL -->
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">Image URL</label>
                             <input
-                                type="url"
+                                type="text"
                                 id="image"
-                                placeholder="จะดึงอัตโนมัติจาก Web Link หรือกรอกเอง"
+                                placeholder="จะดึงอัตโนมัติจาก Web Link หรือใส่ URL / ชื่อไฟล์เอง"
                                 class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                             />
+                            <p class="text-xs text-gray-500 mt-1">
+                                🖼️ ดึงอัตโนมัติจาก Web Link หรือใส่ URL เต็ม / ชื่อไฟล์ใน GitHub
+                            </p>
                         </div>
 
-                        <!-- Buttons -->
-                        <div class="flex gap-2 pt-4">
-                            <button
-                                type="button"
-                                id="btnCopy"
-                                class="flex-1 bg-gradient-to-r from-purple-600 to-blue-600 text-white px-6 py-3 rounded-lg hover:from-purple-700 hover:to-blue-700 transition-all shadow-lg hover:shadow-xl flex items-center justify-center gap-2"
-                            >
-                                <i data-lucide="copy"></i>
-                                <span>Copy JSON</span>
-                            </button>
-                            <button
-                                type="button"
-                                id="btnExportImage"
-                                class="flex-1 bg-gradient-to-r from-green-600 to-teal-600 text-white px-6 py-3 rounded-lg hover:from-green-700 hover:to-teal-700 transition-all shadow-lg hover:shadow-xl flex items-center justify-center gap-2"
-                            >
-                                <i data-lucide="download"></i>
-                                <span>Export Image</span>
-                            </button>
+                        <!-- Date -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Date</label>
+                            <input
+                                type="text"
+                                id="date"
+                                placeholder="01042025"
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-gray-50"
+                            />
+                            <p class="text-xs text-gray-500 mt-1">
+                                รูปแบบ: DDMMYYYY (ตั้งค่าอัตโนมัติเป็นวันที่ปัจจุบัน)
+                            </p>
+                        </div>
+
+                        <!-- Key Summary (Article only) -->
+                        <div id="keysumContainer">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Key Summary</label>
+                            <textarea
+                                id="keysum"
+                                placeholder="จะดึงอัตโนมัติจาก Web Link หรือกรอกเอง"
+                                rows="4"
+                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-none"
+                            ></textarea>
+                            <p class="text-xs text-gray-500 mt-1">
+                                📝 สรุปสั้นๆ ของบทความ (ดึงจาก meta description)
+                            </p>
+                        </div>
+
+                        <!-- Debug Info -->
+                        <div class="mt-4 p-3 bg-gray-100 rounded-lg">
+                            <details>
+                                <summary class="cursor-pointer text-sm font-medium text-gray-700">🔍 Debug Info (คลิกเพื่อดู)</summary>
+                                <div id="debugInfo" class="mt-2 p-2 bg-white rounded text-xs text-gray-600 max-h-40 overflow-auto">
+                                    <p class="text-gray-400">ยังไม่มีการดึงข้อมูล</p>
+                                </div>
+                            </details>
+                            <p class="text-xs text-gray-500 mt-2">
+                                💡 ถ้าดึงข้อมูลไม่ได้ ให้ดู Debug Info หรือกด F12 → Console
+                            </p>
                         </div>
                     </div>
                 </div>
 
                 <!-- Right Column: Preview Section -->
-                <div class="space-y-6">
-                    <!-- Image Preview -->
-                    <div class="bg-white rounded-lg shadow-lg p-6">
-                        <h3 class="text-lg font-semibold mb-4 text-gray-800">Image Preview (Kanit Font)</h3>
-                        <div id="imagePreviewSection" class="bg-white rounded-lg overflow-hidden" style="width: 350px; margin: 0 auto;">
-                            <!-- Image Container -->
-                            <div class="relative w-full" style="height: 197px;">
-                                <img id="previewImage" src="" alt="" class="w-full h-full object-cover" style="display: none;">
-                                <div id="placeholderImage" class="w-full h-full bg-gray-200 flex items-center justify-center">
-                                    <span class="text-gray-400 text-sm">No Image</span>
-                                </div>
-                            </div>
-                            
-                            <!-- Text Container -->
-                            <div class="px-4 py-3">
-                                <!-- Title -->
-                                <div id="previewTitle" class="font-kanit text-gray-800 mb-2" style="font-weight: 600; font-size: 15px; line-height: 1.4; white-space: pre-wrap;"></div>
-                                
-                                <!-- Description -->
-                                <div id="previewDescription" class="font-kanit text-gray-600" style="font-weight: 400; font-size: 12px; line-height: 1.5;"></div>
-                            </div>
-                        </div>
-                        <p class="text-xs text-gray-500 mt-3 text-center">
-                            ⚠️ ตัวอย่างนี้ใช้ Kanit font - Export เป็นรูปเพื่อใช้ใน LINE
-                        </p>
+                <div class="bg-white rounded-lg shadow-lg p-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-2xl font-semibold text-gray-800">Preview</h2>
+                        <button
+                            id="btnExportImage"
+                            class="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-lg hover:from-green-600 hover:to-emerald-700 transition-all shadow-sm"
+                            title="Export เฉพาะส่วน Image เป็นไฟล์รูป"
+                        >
+                            <i data-lucide="download" class="w-4 h-4"></i>
+                            <span>Export Image</span>
+                        </button>
                     </div>
+                    <div class="flex justify-center">
+                        <div id="previewCard" class="w-full max-w-sm bg-white border border-gray-200 rounded-lg overflow-hidden shadow-md">
+                            <!-- Preview will be rendered here -->
+                        </div>
+                    </div>
+                    <p class="text-xs text-gray-500 mt-3 text-center">
+                        💡 Export ความละเอียด 4x (สูงมาก) | รอให้รูปโหลดเสร็จก่อนกด Export
+                    </p>
+                </div>
+            </div>
 
-                    <!-- JSON Preview -->
-                    <div class="bg-white rounded-lg shadow-lg p-6">
-                        <h3 class="text-lg font-semibold mb-4 text-gray-800">Flex Message JSON</h3>
-                        <div class="bg-gray-900 rounded-lg p-4 overflow-x-auto">
-                            <pre id="jsonOutput" class="text-green-400 text-xs font-mono"></pre>
-                        </div>
-                    </div>
+            <!-- Bottom: JSON Output Section (Full Width) -->
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-2xl font-semibold text-gray-800">JSON Output</h2>
+                    <button
+                        id="btnCopy"
+                        class="flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
+                    >
+                        <i data-lucide="copy" class="w-4 h-4"></i>
+                        <span id="copyText">Copy</span>
+                    </button>
+                </div>
+                
+                <div class="bg-gray-900 rounded-lg p-4 overflow-auto max-h-96">
+                    <pre id="jsonOutput" class="text-green-400 text-sm font-mono"></pre>
                 </div>
             </div>
         </div>
@@ -194,248 +228,558 @@
     <script>
         // Initialize Lucide icons
         lucide.createIcons();
-        
-        // ===== UTILITY FUNCTIONS =====
-        
+
+        // State management
+        let fontSize = 18; // Default font size in pixels
+        let isLoading = false;
+
+        // Get today's date in DDMMYYYY format
+        function getTodayDate() {
+            const today = new Date();
+            const day = String(today.getDate()).padStart(2, '0');
+            const month = String(today.getMonth() + 1).padStart(2, '0');
+            const year = today.getFullYear();
+            return `${day}${month}${year}`;
+        }
+
+        // Initialize date
+        document.getElementById('date').value = getTodayDate();
+
         // Get form data
         function getFormData() {
             return {
-                title: document.getElementById('title').value.trim() || '[title]',
-                description: document.getElementById('description').value.trim() || '[description]',
-                image: document.getElementById('image').value.trim() || '[image]',
-                weblink: document.getElementById('weblink').value.trim() || 'https://example.com'
+                title: document.getElementById('title').value || '[title]',
+                cat_title: document.getElementById('cat_title').value || '',
+                image: document.getElementById('image').value || '[image]',
+                weblink: document.getElementById('weblink').value || '[weblink]',
+                keysum: document.getElementById('keysum').value || '[keysum]',
+                date: document.getElementById('date').value || '[date]'
             };
         }
-        
-        // Generate Flex Message JSON
-        function generateFlexJSON(data) {
-            return {
-                "type": "bubble",
-                "hero": {
-                    "type": "image",
-                    "url": data.image,
-                    "size": "full",
-                    "aspectRatio": "16:9",
-                    "aspectMode": "cover",
-                    "action": {
-                        "type": "uri",
-                        "uri": data.weblink
-                    }
-                },
-                "body": {
-                    "type": "box",
-                    "layout": "vertical",
-                    "contents": [
-                        {
-                            "type": "text",
-                            "text": data.title,
-                            "weight": "bold",
-                            "size": "md",
-                            "wrap": true
-                        },
-                        {
-                            "type": "text",
-                            "text": data.description,
-                            "size": "xs",
-                            "color": "#666666",
-                            "wrap": true,
-                            "margin": "md"
-                        }
-                    ]
-                },
-                "footer": {
-                    "type": "box",
-                    "layout": "vertical",
-                    "spacing": "sm",
-                    "contents": [
-                        {
-                            "type": "button",
-                            "style": "primary",
-                            "height": "sm",
-                            "action": {
-                                "type": "uri",
-                                "label": "อ่านต่อ",
-                                "uri": data.weblink
+
+        // Get image URL
+        function getImageUrl(image) {
+            if (!image || image === '[image]') return '[image]';
+            if (image.startsWith('http')) return image;
+            return `https://raw.githubusercontent.com/scbeic/sharetarget2/main/${image}`;
+        }
+
+        // Get weblink with UTM
+        function getWebLinkWithUTM(weblink) {
+            if (!weblink || weblink === '[weblink]') return '[weblink]';
+            const utmParams = '?utm_source=EIC_LINEOA&utm_medium=EIC_LINEOA';
+            return weblink.includes('?') 
+                ? weblink + '&utm_source=EIC_LINEOA&utm_medium=EIC_LINEOA'
+                : weblink + utmParams;
+        }
+
+        // Generate Article JSON
+        function generateArticleJSON(data) {
+            return [{
+                "type": "flex",
+                "altText": data.title,
+                "contents": {
+                    "type": "bubble",
+                    "size": "giga",
+                    "hero": {
+                        "type": "box",
+                        "layout": "vertical",
+                        "contents": [
+                            {
+                                "type": "image",
+                                "url": getImageUrl(data.image),
+                                "size": "full",
+                                "aspectRatio": "20:14",
+                                "aspectMode": "cover",
+                                "action": {
+                                    "type": "uri",
+                                    "uri": getWebLinkWithUTM(data.weblink)
+                                }
                             },
-                            "color": "#4E2A84"
-                        }
-                    ],
-                    "flex": 0
-                }
-            };
-        }
-        
-        // Update all outputs (JSON and Image Preview)
-        function updateOutputs() {
-            const data = getFormData();
-            
-            // Update JSON output
-            const jsonOutput = document.getElementById('jsonOutput');
-            const flexJSON = generateFlexJSON(data);
-            jsonOutput.textContent = JSON.stringify(flexJSON, null, 2);
-            
-            // Update Image Preview
-            updateImagePreview(data);
-        }
-        
-        // Update Image Preview with Kanit font
-        function updateImagePreview(data) {
-            const previewImage = document.getElementById('previewImage');
-            const placeholderImage = document.getElementById('placeholderImage');
-            const previewTitle = document.getElementById('previewTitle');
-            const previewDescription = document.getElementById('previewDescription');
-            
-            // Update image
-            if (data.image && data.image !== '[image]') {
-                previewImage.src = data.image;
-                previewImage.style.display = 'block';
-                placeholderImage.style.display = 'none';
-            } else {
-                previewImage.style.display = 'none';
-                placeholderImage.style.display = 'flex';
-            }
-            
-            // Update title with Kanit font
-            previewTitle.textContent = data.title;
-            
-            // Update description with Kanit font
-            previewDescription.textContent = data.description;
-        }
-        
-        // ===== COPY JSON FUNCTION =====
-        
-        // Copy JSON to clipboard
-        async function copyJSON() {
-            const jsonOutput = document.getElementById('jsonOutput');
-            const button = document.getElementById('btnCopy');
-            const buttonText = button.querySelector('span');
-            const buttonIcon = button.querySelector('i');
-            
-            try {
-                await navigator.clipboard.writeText(jsonOutput.textContent);
-                
-                // Update button to success state
-                buttonText.textContent = 'Copied!';
-                buttonIcon.setAttribute('data-lucide', 'check');
-                lucide.createIcons();
-                
-                // Reset button after 2 seconds
-                setTimeout(() => {
-                    buttonText.textContent = 'Copy JSON';
-                    buttonIcon.setAttribute('data-lucide', 'copy');
-                    lucide.createIcons();
-                }, 2000);
-            } catch (err) {
-                console.error('Failed to copy:', err);
-                alert('ไม่สามารถ copy ได้ กรุณาลองใหม่');
-            }
-        }
-        
-        // ===== WEB SCRAPING FUNCTION =====
-        
-        // Fetch metadata from URL
-        async function fetchMetadata() {
-            const weblinkInput = document.getElementById('weblink');
-            const url = weblinkInput.value.trim();
-            
-            if (!url) {
-                alert('กรุณาใส่ URL ก่อน');
-                return;
-            }
-            
-            // Validate URL
-            try {
-                new URL(url);
-            } catch (e) {
-                alert('URL ไม่ถูกต้อง กรุณาตรวจสอบ');
-                return;
-            }
-            
-            const loadingIndicator = document.getElementById('loadingIndicator');
-            const btnRefresh = document.getElementById('btnRefresh');
-            
-            try {
-                // Show loading state
-                loadingIndicator.classList.remove('hidden');
-                btnRefresh.disabled = true;
-                
-                console.log('🔍 Fetching metadata from:', url);
-                
-                // Use CORS proxy
-                const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`;
-                const response = await fetch(proxyUrl);
-                const data = await response.json();
-                
-                if (!data.contents) {
-                    throw new Error('No content received');
-                }
-                
-                // Parse HTML
-                const parser = new DOMParser();
-                const doc = parser.parseFromString(data.contents, 'text/html');
-                
-                console.log('✅ HTML parsed successfully');
-                
-                // Extract metadata
-                let title = '';
-                let description = '';
-                let image = '';
-                
-                // Try multiple selectors for title
-                title = doc.querySelector('meta[property="og:title"]')?.getAttribute('content') ||
-                       doc.querySelector('meta[name="twitter:title"]')?.getAttribute('content') ||
-                       doc.querySelector('title')?.textContent ||
-                       doc.querySelector('h1')?.textContent ||
-                       '';
-                
-                // Try multiple selectors for description
-                description = doc.querySelector('meta[property="og:description"]')?.getAttribute('content') ||
-                             doc.querySelector('meta[name="twitter:description"]')?.getAttribute('content') ||
-                             doc.querySelector('meta[name="description"]')?.getAttribute('content') ||
-                             '';
-                
-                // Try multiple selectors for image
-                image = doc.querySelector('meta[property="og:image"]')?.getAttribute('content') ||
-                       doc.querySelector('meta[name="twitter:image"]')?.getAttribute('content') ||
-                       doc.querySelector('img')?.getAttribute('src') ||
-                       '';
-                
-                // Make image URL absolute if it's relative
-                if (image && !image.startsWith('http')) {
-                    const urlObj = new URL(url);
-                    if (image.startsWith('/')) {
-                        image = urlObj.origin + image;
-                    } else {
-                        image = urlObj.origin + '/' + image;
+                            {
+                                "type": "box",
+                                "layout": "vertical",
+                                "contents": [],
+                                "position": "absolute",
+                                "background": {
+                                    "type": "linearGradient",
+                                    "angle": "0deg",
+                                    "startColor": "#00000000",
+                                    "endColor": "#000000E6"
+                                },
+                                "width": "100%",
+                                "height": "50%",
+                                "offsetBottom": "0px",
+                                "offsetStart": "0px",
+                                "offsetEnd": "0px"
+                            },
+                            {
+                                "type": "box",
+                                "layout": "vertical",
+                                "contents": [
+                                    {
+                                        "type": "image",
+                                        "url": "https://phanumard.github.io/burave/eic-logo-black.png",
+                                        "size": "xs",
+                                        "align": "start"
+                                    }
+                                ],
+                                "position": "absolute",
+                                "offsetTop": "0px",
+                                "offsetStart": "20px",
+                                "width": "80px"
+                            },
+                            {
+                                "type": "box",
+                                "layout": "vertical",
+                                "contents": [
+                                    {
+                                        "type": "text",
+                                        "text": data.title,
+                                        "size": `${fontSize}px`,
+                                        "color": "#FFFFFF",
+                                        "weight": "regular",
+                                        "wrap": true,
+                                        "style": "normal",
+                                        "decoration": "none"
+                                    },
+                                    {
+                                        "type": "box",
+                                        "layout": "vertical",
+                                        "contents": [
+                                            {
+                                                "type": "text",
+                                                "text": data.cat_title || "",
+                                                "size": "8px",
+                                                "color": "#FFFFFF",
+                                                "weight": "regular",
+                                                "wrap": true,
+                                                "margin": "md"
+                                            }
+                                        ],
+                                        "margin": "md"
+                                    }
+                                ],
+                                "position": "absolute",
+                                "offsetBottom": "18px",
+                                "offsetStart": "20px",
+                                "offsetEnd": "20px"
+                            }
+                        ]
+                    },
+                    "body": {
+                        "type": "box",
+                        "layout": "vertical",
+                        "contents": [
+                            {
+                                "type": "text",
+                                "text": "Key summary",
+                                "weight": "bold",
+                                "size": "lg",
+                                "margin": "none"
+                            },
+                            {
+                                "type": "text",
+                                "text": data.keysum,
+                                "size": "sm",
+                                "color": "#666666",
+                                "margin": "md",
+                                "wrap": true
+                            }
+                        ],
+                        "spacing": "md"
+                    },
+                    "footer": {
+                        "type": "box",
+                        "layout": "vertical",
+                        "spacing": "sm",
+                        "contents": [
+                            {
+                                "type": "button",
+                                "style": "primary",
+                                "height": "sm",
+                                "action": {
+                                    "type": "uri",
+                                    "label": "Read more",
+                                    "uri": getWebLinkWithUTM(data.weblink)
+                                },
+                                "color": "#6B46C1"
+                            },
+                            {
+                                "type": "button",
+                                "style": "secondary",
+                                "height": "sm",
+                                "action": {
+                                    "type": "uri",
+                                    "label": "Share",
+                                    "uri": `https://liff.line.me/1657155025-N4RBzQGX?messages=https://raw.githubusercontent.com/scbeic/sharetarget2/main/messages${data.date}.json`
+                                }
+                            }
+                        ],
+                        "flex": 0
                     }
                 }
+            }];
+        }
+
+        // Generate JSON
+        function generateJSON() {
+            const data = getFormData();
+            const json = generateArticleJSON(data);
+            return JSON.stringify(json, null, 2);
+        }
+
+        // Update preview
+        function updatePreview() {
+            const data = getFormData();
+            const imageUrl = getImageUrl(data.image);
+
+            const html = `
+                <div id="imagePreviewSection" class="relative h-64 bg-gray-100">
+                    ${imageUrl !== '[image]' ? `
+                        <img 
+                            src="${imageUrl}"
+                            alt="${data.title}"
+                            class="absolute inset-0 w-full h-full object-cover"
+                            onerror="this.style.display='none'; this.parentElement.innerHTML='<div class=\\'absolute inset-0 flex items-center justify-center text-gray-400\\'>Image Preview</div>';"
+                        />
+                        <!-- Gradient Overlay (50% from bottom, 90% to 0%) -->
+                        <div class="absolute bottom-0 left-0 right-0 h-[50%] bg-gradient-to-t from-black/90 to-transparent"></div>
+                        <!-- Logo at Top Left (aligned with body padding) -->
+                        <div class="absolute top-0 left-5 w-20 pt-4">
+                            <img src="https://phanumard.github.io/burave/eic-logo-black.png" alt="EIC Logo" class="w-full" />
+                        </div>
+                        <!-- Title Text at Bottom Left (aligned with body padding) - ขยับลงมาเล็กน้อย -->
+                        <div class="absolute bottom-[18px] left-5 right-5">
+                            <p class="font-kanit text-white" style="font-size: ${fontSize}px; line-height: 1.3; font-weight: 500; white-space: pre-line;">
+                                ${data.title}
+                            </p>
+                            ${data.cat_title ? `
+                                <div class="mt-2">
+                                    <p class="text-white" style="font-size: 8px; font-weight: 400; opacity: 0.9;">
+                                        ${data.cat_title}
+                                    </p>
+                                </div>
+                            ` : ''}
+                        </div>
+                    ` : `
+                        <div class="absolute inset-0 flex items-center justify-center text-gray-400">
+                            Image Preview
+                        </div>
+                    `}
+                </div>
+                <div class="p-5">
+                    <h3 class="font-bold text-lg mb-3">Key summary</h3>
+                    <p class="text-gray-600 text-sm">${data.keysum}</p>
+                </div>
+                <div class="p-5 space-y-2">
+                    <button class="w-full py-2 text-white rounded font-medium transition-colors bg-purple-700 hover:bg-purple-800">
+                        Read more
+                    </button>
+                    <button class="w-full py-2 bg-gray-200 text-gray-700 rounded font-medium hover:bg-gray-300 transition-colors">
+                        Share
+                    </button>
+                </div>
+            `;
+
+            document.getElementById('previewCard').innerHTML = html;
+        }
+
+        // Update all outputs
+        function updateOutputs() {
+            document.getElementById('jsonOutput').textContent = generateJSON();
+            updatePreview();
+            
+            // Re-initialize lucide icons after DOM update
+            setTimeout(() => {
+                lucide.createIcons();
+            }, 100);
+        }
+
+        // Add debug message to UI
+        function addDebugMessage(message, type = 'info') {
+            const debugInfo = document.getElementById('debugInfo');
+            const timestamp = new Date().toLocaleTimeString('th-TH');
+            const color = type === 'error' ? 'text-red-600' : type === 'success' ? 'text-green-600' : 'text-gray-600';
+            const icon = type === 'error' ? '❌' : type === 'success' ? '✅' : 'ℹ️';
+            
+            debugInfo.innerHTML = `<p class="${color}">[${timestamp}] ${icon} ${message}</p>` + debugInfo.innerHTML;
+        }
+
+        // Fetch metadata from URL
+        async function fetchMetadata(url) {
+            if (!url || !url.startsWith('http')) return;
+            
+            isLoading = true;
+            document.getElementById('loadingIndicator').classList.remove('hidden');
+            document.getElementById('btnRefresh').disabled = true;
+
+            console.log('Fetching metadata from:', url);
+            addDebugMessage(`เริ่มดึงข้อมูลจาก: ${url}`);
+
+            try {
+                // Try Method 1: Microlink API
+                try {
+                    console.log('Trying Microlink API...');
+                    addDebugMessage('ลองใช้ Microlink API...');
+                    
+                    const microlinkUrl = `https://api.microlink.io?url=${encodeURIComponent(url)}`;
+                    const response = await fetch(microlinkUrl);
+                    
+                    console.log('Microlink response status:', response.status);
+                    addDebugMessage(`Microlink API status: ${response.status}`);
+                    
+                    if (response.ok) {
+                        const result = await response.json();
+                        console.log('Microlink data:', result);
+                        const data = result.data;
+                        
+                        if (data) {
+                            let imageFound = false;
+                            let descriptionFound = false;
+                            let titleFound = false;
+                            
+                            // Get TITLE from Microlink
+                            if (data.title && !document.getElementById('title').value) {
+                                let titleToUse = data.title;
+                                
+                                // Extract product/category and clean title
+                                // Format: "category / title | site"
+                                if (titleToUse.includes('/') && titleToUse.includes('|')) {
+                                    const parts = titleToUse.split('/');
+                                    if (parts.length >= 2) {
+                                        // Product = part before "/"
+                                        const product = parts[0].trim();
+                                        document.getElementById('cat_title').value = product;
+                                        console.log('✅ Product extracted:', product);
+                                        addDebugMessage(`Product: ${product}`, 'success');
+                                        
+                                        // Title = part between "/" and "|"
+                                        titleToUse = parts[1].split('|')[0].trim();
+                                    }
+                                }
+                                
+                                document.getElementById('title').value = titleToUse;
+                                titleFound = true;
+                                console.log('✅ Title found from Microlink:', titleToUse);
+                                addDebugMessage(`ชื่อ (จาก Microlink): ${titleToUse}`, 'success');
+                            }
+                            
+                            if (data.image?.url || data.logo?.url) {
+                                document.getElementById('image').value = data.image?.url || data.logo?.url;
+                                imageFound = true;
+                                console.log('Image found:', data.image?.url || data.logo?.url);
+                                addDebugMessage(`ภาพ: ${data.image?.url || data.logo?.url}`, 'success');
+                            }
+                            
+                            if (data.description) {
+                                document.getElementById('keysum').value = data.description;
+                                descriptionFound = true;
+                                console.log('Description found:', data.description);
+                                addDebugMessage(`คำอธิบาย: ${data.description.substring(0, 50)}...`, 'success');
+                            }
+                            
+                            // If we got title from Microlink, we can skip AllOrigins
+                            if (titleFound && imageFound && descriptionFound) {
+                                console.log('✅ Got all data from Microlink, skipping AllOrigins');
+                                addDebugMessage('ดึงข้อมูลครบจาก Microlink แล้ว', 'success');
+                                updateOutputs();
+                                return;
+                            }
+                        }
+                    }
+                } catch (e) {
+                    console.log('❌ Microlink API error:', e.message);
+                    addDebugMessage(`Microlink API ล้มเหลว: ${e.message}`, 'error');
+                }
+
+                // Try Method 2: LinkPreview API for image and description
+                try {
+                    console.log('Trying LinkPreview API...');
+                    addDebugMessage('ลองใช้ LinkPreview API...');
+                    
+                    const linkPreviewUrl = `https://api.linkpreview.net/?q=${encodeURIComponent(url)}`;
+                    const response = await fetch(linkPreviewUrl);
+                    
+                    console.log('LinkPreview response status:', response.status);
+                    addDebugMessage(`LinkPreview API status: ${response.status}`);
+                    
+                    if (response.ok) {
+                        const data = await response.json();
+                        console.log('LinkPreview data:', data);
+                        
+                        if (data.image && !document.getElementById('image').value) {
+                            document.getElementById('image').value = data.image;
+                            console.log('Image found:', data.image);
+                            addDebugMessage(`ภาพ: ${data.image}`, 'success');
+                        }
+                        if (data.description && !document.getElementById('keysum').value) {
+                            document.getElementById('keysum').value = data.description;
+                            console.log('Description found:', data.description);
+                            addDebugMessage(`คำอธิบาย: ${data.description.substring(0, 50)}...`, 'success');
+                        }
+                    }
+                } catch (e) {
+                    console.log('❌ LinkPreview API error:', e.message);
+                    addDebugMessage(`LinkPreview API ล้มเหลว: ${e.message}`, 'error');
+                }
+
+                // ALWAYS try Method 3: AllOrigins to get h1 tag for title and category
+                try {
+                    console.log('Trying AllOrigins proxy...');
+                    addDebugMessage('ลองใช้ AllOrigins Proxy...');
+                    
+                    const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`;
+                    const response = await fetch(proxyUrl);
+                    
+                    console.log('AllOrigins response status:', response.status);
+                    addDebugMessage(`AllOrigins status: ${response.status}`);
+                    
+                    if (response.ok) {
+                        const result = await response.json();
+                        const html = result.contents;
+                        
+                        // Parse HTML to extract meta tags
+                        const parser = new DOMParser();
+                        const doc = parser.parseFromString(html, 'text/html');
+                        
+                        let updated = false;
+                        
+                        console.log('=== Starting metadata extraction ===');
+                        
+                        // === EXTRACT TITLE ===
+                        // Priority 1: Try from h1 tags in HTML
+                        const allH1 = doc.querySelectorAll('h1');
+                        console.log('🔍 Found h1 tags:', allH1.length);
+                        
+                        let h1Text = null;
+                        if (allH1.length > 0) {
+                            allH1.forEach((h1, index) => {
+                                const text = h1.textContent?.trim();
+                                console.log(`  h1[${index}]:`, text?.substring(0, 150));
+                                
+                                // Get the first non-empty h1 that's not too short
+                                if (!h1Text && text && text.length > 10) {
+                                    h1Text = text;
+                                }
+                            });
+                        }
+                        
+                        console.log('📝 h1Text from HTML:', h1Text);
+                        
+                        // Priority 2: Try og:title
+                        const ogTitle = doc.querySelector('meta[property="og:title"]')?.content || 
+                                       doc.querySelector('meta[name="twitter:title"]')?.content;
+                        console.log('📝 og:title:', ogTitle);
+                        
+                        // Priority 3: Extract from page title (format: "category / title | site")
+                        const pageTitle = doc.querySelector('title')?.textContent?.trim();
+                        console.log('📝 page title:', pageTitle);
+                        
+                        let titleFromPageTitle = null;
+                        let productFromPageTitle = null;
+                        
+                        if (pageTitle && pageTitle.includes('/') && pageTitle.includes('|')) {
+                            const parts = pageTitle.split('/');
+                            if (parts.length >= 2) {
+                                productFromPageTitle = parts[0].trim();
+                                titleFromPageTitle = parts[1].split('|')[0].trim();
+                                console.log('📝 product extracted from page title:', productFromPageTitle);
+                                console.log('📝 title extracted from page title:', titleFromPageTitle);
+                            }
+                        }
+                        
+                        // Choose the best title
+                        const titleToUse = h1Text || ogTitle || titleFromPageTitle || pageTitle;
+                        const productToUse = productFromPageTitle;
+                        
+                        console.log('✅ Final title to use:', titleToUse);
+                        console.log('✅ Final product to use:', productToUse);
+                        
+                        // === EXTRACT IMAGE & DESCRIPTION ===
+                        const ogImage = doc.querySelector('meta[property="og:image"]')?.content || 
+                                       doc.querySelector('meta[name="twitter:image"]')?.content;
+                        const ogDescription = doc.querySelector('meta[property="og:description"]')?.content ||
+                                             doc.querySelector('meta[name="twitter:description"]')?.content ||
+                                             doc.querySelector('meta[name="description"]')?.content;
+                        
+                        console.log('Extracted data:', {
+                            h1: h1Text,
+                            ogTitle: ogTitle,
+                            finalTitle: titleToUse,
+                            product: productToUse,
+                            image: ogImage,
+                            description: ogDescription
+                        });
+                        
+                        // === UPDATE FORM FIELDS ===
+                        if (ogImage && !document.getElementById('image').value) {
+                            document.getElementById('image').value = ogImage;
+                            updated = true;
+                            console.log('✅ Image updated');
+                            addDebugMessage(`ภาพ: ${ogImage}`, 'success');
+                        }
+                        if (titleToUse && !document.getElementById('title').value) {
+                            document.getElementById('title').value = titleToUse;
+                            updated = true;
+                            const source = h1Text ? 'h1' : ogTitle ? 'og:title' : 'page title';
+                            console.log(`✅ Title updated from ${source}:`, titleToUse);
+                            addDebugMessage(`ชื่อ (จาก ${source}): ${titleToUse}`, 'success');
+                        } else if (!titleToUse) {
+                            console.log('❌ No title found');
+                            addDebugMessage('Title: ไม่พบข้อมูล', 'error');
+                        }
+                        if (productToUse && !document.getElementById('cat_title').value) {
+                            document.getElementById('cat_title').value = productToUse;
+                            updated = true;
+                            console.log('✅ Product updated:', productToUse);
+                            addDebugMessage(`Product: ${productToUse}`, 'success');
+                        }
+                        if (ogDescription && !document.getElementById('keysum').value) {
+                            document.getElementById('keysum').value = ogDescription;
+                            updated = true;
+                            console.log('Description found:', ogDescription);
+                            addDebugMessage(`คำอธิบาย: ${ogDescription.substring(0, 50)}...`, 'success');
+                        }
+                        
+                        if (updated) {
+                            updateOutputs();
+                            console.log('✅ Successfully fetched metadata from AllOrigins');
+                            addDebugMessage('ดึงข้อมูลสำเร็จจาก AllOrigins Proxy', 'success');
+                            return;
+                        }
+                    }
+                } catch (e) {
+                    console.log('❌ AllOrigins proxy error:', e.message);
+                    addDebugMessage(`AllOrigins Proxy ล้มเหลว: ${e.message}`, 'error');
+                }
+
+                // Check if we got any data at all before showing error
+                const hasImage = document.getElementById('image').value;
+                const hasTitle = document.getElementById('title').value;
+                const hasDescription = document.getElementById('keysum').value;
                 
-                console.log('📝 Extracted metadata:', { title, description, image });
+                if (hasImage || hasTitle || hasDescription) {
+                    updateOutputs();
+                    addDebugMessage('ดึงข้อมูลบางส่วนสำเร็จ', 'success');
+                    return;
+                }
+
+                console.log('❌ All methods failed - no data retrieved');
+                addDebugMessage('❌ ทุกวิธีล้มเหลว - กรุณากรอกข้อมูลเอง', 'error');
+                alert('ไม่สามารถดึงข้อมูลจาก URL ได้\n\nเหตุผลที่เป็นไปได้:\n1. เว็บไซต์ไม่มี h1 หรือ meta tags\n2. เว็บไซต์บล็อค API requests\n3. API มี rate limit\n\nกรุณากรอกข้อมูลด้วยตนเอง\n\nดู Debug Info ด้านล่างสำหรับข้อมูลเพิ่มเติม');
                 
-                // Update form fields
-                if (title) document.getElementById('title').value = title;
-                if (description) document.getElementById('description').value = description;
-                if (image) document.getElementById('image').value = image;
-                
-                // Update outputs
-                updateOutputs();
-                
-                console.log('✅ Metadata loaded successfully');
-                
-            } catch (error) {
-                console.error('❌ Error fetching metadata:', error);
-                alert('ไม่สามารถดึงข้อมูลได้\nกรุณาลองใหม่หรือกรอกข้อมูลเอง');
             } finally {
-                // Hide loading state
-                loadingIndicator.classList.add('hidden');
-                btnRefresh.disabled = false;
+                isLoading = false;
+                document.getElementById('loadingIndicator').classList.add('hidden');
+                document.getElementById('btnRefresh').disabled = false;
             }
         }
         
-        // ===== SMART BREAK FUNCTIONS =====
+        // ===== TITLE LINE BREAK FUNCTIONS =====
         
         // Smart Break: แบ่งบรรทัดอัตโนมัติ
-        function smartBreak() {
+        function smartBreakTitle() {
             const titleInput = document.getElementById('title');
             let text = titleInput.value.trim();
             
@@ -444,7 +788,7 @@
                 return;
             }
             
-            // Strategy 1: แบ่งตาม / (ถ้ามี)
+            // Strategy 1: แบ่งตามเครื่องหมาย / (ถ้ามี)
             if (text.includes('/')) {
                 text = text.replace(/\s*\/\s*/g, '\n');
                 titleInput.value = text;
@@ -518,34 +862,7 @@
             console.log('✅ Cleared all line breaks');
         }
         
-        // ===== EXPORT IMAGE FUNCTION WITH CORS FIX =====
-        
-        // Convert image URL to base64 using CORS proxy
-        async function imageUrlToBase64(url) {
-            try {
-                console.log('🔄 Converting image to base64:', url);
-                
-                // Use CORS proxy to fetch the image
-                const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`;
-                const response = await fetch(proxyUrl);
-                
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                
-                const blob = await response.blob();
-                
-                return new Promise((resolve, reject) => {
-                    const reader = new FileReader();
-                    reader.onloadend = () => resolve(reader.result);
-                    reader.onerror = reject;
-                    reader.readAsDataURL(blob);
-                });
-            } catch (error) {
-                console.error('❌ Error converting image to base64:', error);
-                throw error;
-            }
-        }
+        // ===== EXPORT IMAGE FUNCTION =====
         
         // Export เฉพาะส่วน Image เป็นไฟล์รูป
         async function exportImage() {
@@ -571,7 +888,7 @@
             try {
                 // Update button state
                 button.disabled = true;
-                if (buttonText) buttonText.textContent = 'Loading...';
+                if (buttonText) buttonText.textContent = 'Loading image...';
                 if (buttonIcon) {
                     buttonIcon.setAttribute('data-lucide', 'loader');
                     lucide.createIcons();
@@ -580,42 +897,56 @@
                 console.log('🎨 Starting image export...');
                 console.log('Image URL:', data.image);
                 
-                // Convert external image to base64 to avoid CORS issues
-                const previewImage = document.getElementById('previewImage');
-                const originalSrc = previewImage.src;
+                // Wait for all images to load
+                const images = imageSection.querySelectorAll('img');
+                const imageLoadPromises = Array.from(images).map(img => {
+                    if (img.complete) {
+                        console.log('✅ Image already loaded:', img.src);
+                        return Promise.resolve();
+                    }
+                    console.log('⏳ Waiting for image:', img.src);
+                    return new Promise((resolve, reject) => {
+                        img.onload = () => {
+                            console.log('✅ Image loaded:', img.src);
+                            resolve();
+                        };
+                        img.onerror = () => {
+                            console.error('❌ Image load error:', img.src);
+                            reject(new Error(`Failed to load image: ${img.src}`));
+                        };
+                        // Timeout after 15 seconds
+                        setTimeout(() => reject(new Error('Image load timeout')), 15000);
+                    });
+                });
                 
-                try {
-                    if (buttonText) buttonText.textContent = 'Converting...';
-                    const base64Image = await imageUrlToBase64(data.image);
-                    previewImage.src = base64Image;
-                    console.log('✅ Image converted to base64');
-                } catch (error) {
-                    console.warn('⚠️ Could not convert image to base64, using original URL');
-                    // Continue with original URL if conversion fails
-                }
-                
-                // Wait for image to be applied
-                await new Promise(resolve => setTimeout(resolve, 500));
+                await Promise.all(imageLoadPromises);
+                console.log('✅ All images loaded');
                 
                 if (buttonText) buttonText.textContent = 'Capturing...';
                 
+                // Small delay to ensure rendering
+                await new Promise(resolve => setTimeout(resolve, 500));
+                
                 // Use html2canvas to capture the element
                 const canvas = await html2canvas(imageSection, {
-                    backgroundColor: '#ffffff',
+                    backgroundColor: null,
                     scale: 4, // Very high quality (4x resolution)
-                    useCORS: true,
-                    allowTaint: false,
-                    logging: false,
-                    imageTimeout: 0,
-                    foreignObjectRendering: false
+                    useCORS: true, // Enable CORS for external images
+                    allowTaint: true, // Allow cross-origin images
+                    logging: true, // Enable logging for debugging
+                    imageTimeout: 0, // No timeout since we already waited
+                    foreignObjectRendering: false, // Better compatibility
+                    onclone: function(clonedDoc) {
+                        console.log('🎨 Cloning document for canvas...');
+                        // Ensure fonts are loaded in cloned document
+                        const clonedSection = clonedDoc.getElementById('imagePreviewSection');
+                        if (clonedSection) {
+                            console.log('✅ Cloned section found');
+                        }
+                    }
                 });
                 
                 console.log('✅ Canvas created:', canvas.width, 'x', canvas.height, 'pixels');
-                
-                // Restore original image URL
-                if (originalSrc !== previewImage.src) {
-                    previewImage.src = originalSrc;
-                }
                 
                 // Convert canvas to blob
                 canvas.toBlob(function(blob) {
@@ -633,7 +964,7 @@
                     const date = new Date();
                     const dateStr = date.toISOString().slice(0, 10).replace(/-/g, '');
                     const timeStr = date.toTimeString().slice(0, 8).replace(/:/g, '');
-                    const filename = `scb-eic-artwork-${dateStr}-${timeStr}.png`;
+                    const filename = `flex-image-${dateStr}-${timeStr}-4x.png`;
                     
                     link.href = url;
                     link.download = filename;
@@ -641,7 +972,7 @@
                     link.click();
                     document.body.removeChild(link);
                     
-                    // Revoke URL after download
+                    // Don't revoke URL immediately, wait a bit
                     setTimeout(() => URL.revokeObjectURL(url), 1000);
                     
                     console.log('✅ Image exported successfully:', filename);
@@ -667,9 +998,36 @@
             } catch (error) {
                 console.error('❌ Export error:', error);
                 console.error('Error stack:', error.stack);
-                alert('ไม่สามารถ export รูปได้\nกรุณาลองใหม่\n\nError: ' + error.message);
                 
-                // Reset button on error
+                // More detailed error message
+                let errorMsg = '❌ เกิดข้อผิดพลาดในการ export รูปภาพ\n\n';
+                
+                if (error.message && error.message.includes('load')) {
+                    errorMsg += '📋 ปัญหา: ไม่สามารถโหลดรูปภาพได้\n\n';
+                    errorMsg += '✅ วิธีแก้:\n';
+                    errorMsg += '1. ตรวจสอบว่า Image URL ถูกต้อง\n';
+                    errorMsg += '2. รอให้รูปโหลดเสร็จใน Preview ก่อน\n';
+                    errorMsg += '3. ลองใช้รูปจาก:\n';
+                    errorMsg += '   • GitHub: raw.githubusercontent.com\n';
+                    errorMsg += '   • Imgur: i.imgur.com\n\n';
+                    errorMsg += '💡 กด F12 → Console เพื่อดู error ละเอียด';
+                } else if (error.message && error.message.includes('timeout')) {
+                    errorMsg += '📋 ปัญหา: รูปโหลดช้าเกินไป (timeout)\n\n';
+                    errorMsg += '✅ วิธีแก้:\n';
+                    errorMsg += '1. ตรวจสอบ internet connection\n';
+                    errorMsg += '2. ลองใช้รูปที่เล็กกว่า\n';
+                    errorMsg += '3. ลองอีกครั้ง';
+                } else if (error.message && error.message.includes('CORS')) {
+                    errorMsg += '📋 ปัญหา: รูปภาพมีปัญหา CORS\n\n';
+                    errorMsg += '✅ วิธีแก้: ใช้รูปจาก GitHub หรือ Imgur';
+                } else {
+                    errorMsg += '📋 ปัญหา: ' + error.message + '\n\n';
+                    errorMsg += '💡 กด F12 → Console เพื่อดู error ละเอียด';
+                }
+                
+                alert(errorMsg);
+                
+                // Reset button
                 button.disabled = false;
                 if (buttonText) buttonText.textContent = originalText;
                 if (buttonIcon) {
@@ -679,38 +1037,57 @@
             }
         }
         
-        // ===== EVENT LISTENERS =====
-        
-        // Input change listeners
+        // Event listeners
+        document.getElementById('weblink').addEventListener('input', function(e) {
+            if (e.target.value) {
+                fetchMetadata(e.target.value);
+            }
+        });
+
+        document.getElementById('btnRefresh').addEventListener('click', function() {
+            const url = document.getElementById('weblink').value;
+            if (url) {
+                fetchMetadata(url);
+            }
+        });
+
         document.getElementById('title').addEventListener('input', updateOutputs);
-        document.getElementById('description').addEventListener('input', updateOutputs);
-        document.getElementById('image').addEventListener('input', updateOutputs);
-        document.getElementById('weblink').addEventListener('input', updateOutputs);
         
-        // Button listeners
-        document.getElementById('btnCopy').addEventListener('click', copyJSON);
-        document.getElementById('btnExportImage').addEventListener('click', exportImage);
-        document.getElementById('btnRefresh').addEventListener('click', fetchMetadata);
-        document.getElementById('btnSmartBreak').addEventListener('click', smartBreak);
+        // Title line break buttons
+        document.getElementById('btnSmartBreak').addEventListener('click', smartBreakTitle);
         document.getElementById('btnAddLineBreak').addEventListener('click', addLineBreak);
         document.getElementById('btnClearBreaks').addEventListener('click', clearLineBreaks);
         
-        // Auto-fetch on URL input (with debounce)
-        let fetchTimeout;
-        document.getElementById('weblink').addEventListener('input', function() {
-            clearTimeout(fetchTimeout);
-            const url = this.value.trim();
-            if (url && url.startsWith('http')) {
-                fetchTimeout = setTimeout(() => {
-                    fetchMetadata();
-                }, 1000); // Wait 1 second after typing stops
-            }
+        document.getElementById('cat_title').addEventListener('input', updateOutputs);
+        document.getElementById('image').addEventListener('input', updateOutputs);
+        document.getElementById('date').addEventListener('input', updateOutputs);
+        document.getElementById('keysum').addEventListener('input', updateOutputs);
+
+        document.getElementById('btnCopy').addEventListener('click', function() {
+            const jsonOutput = generateJSON();
+            navigator.clipboard.writeText(jsonOutput).then(() => {
+                const icon = this.querySelector('i');
+                const text = document.getElementById('copyText');
+                
+                icon.setAttribute('data-lucide', 'check');
+                text.textContent = 'Copied!';
+                lucide.createIcons();
+                
+                setTimeout(() => {
+                    icon.setAttribute('data-lucide', 'copy');
+                    text.textContent = 'Copy';
+                    lucide.createIcons();
+                }, 2000);
+            });
         });
-        
-        // Initialize outputs on page load
+
+        document.getElementById('btnExportImage').addEventListener('click', exportImage);
+
+        // Initial render
         updateOutputs();
         
-        console.log('✅ SCB EIC Artwork Generator initialized');
+        // Initialize lucide icons
+        lucide.createIcons();
     </script>
 </body>
 </html>
