@@ -120,7 +120,7 @@
                                 class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                             />
                             <p class="text-xs text-gray-500 mt-1">
-                                🏷️ Font size: 8px (เล็กและเหมาะสม)
+                                🏷️ Font size: 6px (เล็กและเหมาะสม)
                             </p>
                         </div>
 
@@ -436,37 +436,36 @@
             const imageUrl = getImageUrl(data.image);
 
             const html = `
-                <div id="imagePreviewSection" class="relative h-64 bg-white" style="overflow: hidden; border: none; outline: none;">
+                <div id="imagePreviewSection" class="relative h-64" style="width: 100%; overflow: hidden; border: none; outline: none; margin: 0; padding: 0; background-color: #ffffff; box-sizing: border-box;">
                     ${imageUrl !== '[image]' ? `
                         <img 
                             src="${imageUrl}"
                             alt="${data.title}"
-                            class="absolute inset-0 w-full h-full object-cover"
+                            style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; border: none; outline: none; display: block; margin: 0; padding: 0;"
                             crossorigin="anonymous"
-                            style="border: none; outline: none; display: block;"
-                            onerror="this.style.display='none'; this.parentElement.innerHTML='<div class=\\'absolute inset-0 flex items-center justify-center text-gray-400\\'>Image Preview</div>';"
+                            onerror="this.style.display='none'; this.parentElement.innerHTML='<div style=\\'position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; color: #9ca3af;\\'>Image Preview</div>';"
                         />
                         <!-- Gradient Overlay (50% from bottom, 90% to 0%) -->
-                        <div class="absolute bottom-0 left-0 right-0 h-[50%]" style="background: linear-gradient(to top, rgba(0, 0, 0, 0.9) 0%, rgba(0, 0, 0, 0) 100%); border: none; outline: none;"></div>
+                        <div style="position: absolute; bottom: 0; left: 0; right: 0; width: 100%; height: 50%; background: linear-gradient(to top, rgba(0, 0, 0, 0.9) 0%, rgba(0, 0, 0, 0) 100%); border: none; outline: none; margin: 0; padding: 0;"></div>
                         <!-- Logo at Top Left (aligned with body padding) -->
-                        <div class="absolute top-0 left-5 w-20 pt-4" style="border: none; outline: none;">
-                            <img src="https://phanumard.github.io/burave/eic-logo-black.png" alt="EIC Logo" class="w-full" crossorigin="anonymous" style="border: none; outline: none; display: block;" />
+                        <div style="position: absolute; top: 0; left: 20px; width: 80px; padding-top: 16px; border: none; outline: none; margin: 0;">
+                            <img src="https://phanumard.github.io/burave/eic-logo-black.png" alt="EIC Logo" style="width: 100%; border: none; outline: none; display: block; margin: 0; padding: 0;" crossorigin="anonymous" />
                         </div>
                         <!-- Title Text at Bottom Left (aligned with body padding) - ขยับลงมาเล็กน้อย -->
-                        <div class="absolute bottom-[18px] left-5 right-5" style="border: none; outline: none;">
-                            <p class="font-kanit text-white" style="font-size: ${fontSize}px; line-height: 1.3; font-weight: 500; white-space: pre-line; border: none; outline: none;">
+                        <div style="position: absolute; bottom: 18px; left: 20px; right: 20px; border: none; outline: none; margin: 0; padding: 0;">
+                            <p class="font-kanit" style="color: #ffffff; font-size: ${fontSize}px; line-height: 1.3; font-weight: 500; white-space: pre-line; border: none; outline: none; margin: 0; padding: 0;">
                                 ${data.title}
                             </p>
                             ${data.cat_title ? `
-                                <div class="mt-2" style="border: none; outline: none;">
-                                    <p class="text-white" style="font-size: 8px; font-weight: 400; opacity: 0.9; border: none; outline: none;">
+                                <div style="margin-top: 8px; border: none; outline: none; padding: 0;">
+                                    <p style="color: #ffffff; font-size: 6px; font-weight: 400; opacity: 0.9; border: none; outline: none; margin: 0; padding: 0;">
                                         ${data.cat_title}
                                     </p>
                                 </div>
                             ` : ''}
                         </div>
                     ` : `
-                        <div class="absolute inset-0 flex items-center justify-center text-gray-400">
+                        <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; color: #9ca3af;">
                             Image Preview
                         </div>
                     `}
@@ -941,16 +940,24 @@
                     foreignObjectRendering: false, // Better compatibility
                     proxy: null, // Disable proxy
                     removeContainer: true, // Clean up after rendering
+                    windowWidth: imageSection.offsetWidth, // Exact width
+                    windowHeight: imageSection.offsetHeight, // Exact height
                     onclone: function(clonedDoc) {
                         console.log('🎨 Cloning document for canvas...');
                         const clonedSection = clonedDoc.getElementById('imagePreviewSection');
                         if (clonedSection) {
                             console.log('✅ Cloned section found');
                             
-                            // Remove all borders and outlines
+                            // Set exact dimensions and remove all spacing
+                            clonedSection.style.width = '100%';
+                            clonedSection.style.height = '256px';
+                            clonedSection.style.margin = '0';
+                            clonedSection.style.padding = '0';
                             clonedSection.style.border = 'none';
                             clonedSection.style.outline = 'none';
                             clonedSection.style.boxShadow = 'none';
+                            clonedSection.style.overflow = 'hidden';
+                            clonedSection.style.boxSizing = 'border-box';
                             
                             // Handle all elements
                             const allElements = clonedSection.getElementsByTagName('*');
@@ -958,6 +965,8 @@
                                 el.style.border = 'none';
                                 el.style.outline = 'none';
                                 el.style.boxShadow = 'none';
+                                el.style.margin = el.style.margin || '0';
+                                el.style.padding = el.style.padding || '0';
                             });
                             
                             // Handle images with CORS issues
@@ -967,6 +976,8 @@
                                 img.style.display = 'block';
                                 img.style.border = 'none';
                                 img.style.outline = 'none';
+                                img.style.margin = '0';
+                                img.style.padding = '0';
                                 console.log('🔒 Set crossOrigin for image:', img.src);
                             });
                         }
