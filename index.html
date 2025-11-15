@@ -59,17 +59,9 @@
                                 >
                                     🔄
                                 </button>
-                                <button
-                                    type="button"
-                                    id="btnGenerateAI"
-                                    class="px-4 py-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-lg hover:from-purple-600 hover:to-pink-600 disabled:from-gray-300 disabled:to-gray-400 disabled:cursor-not-allowed transition-all shadow-sm"
-                                    title="Generate AI Cover Image"
-                                >
-                                    🎨
-                                </button>
                             </div>
                             <p class="text-xs text-gray-500 mt-1">
-                                📌 ระบบจะดึงภาพหน้าปก, ชื่อบทความ และคำอธิบายอัตโนมัติ | 🎨 = AI Generate Cover
+                                📌 ระบบจะดึงภาพหน้าปก, ชื่อบทความ และคำอธิบายอัตโนมัติ
                             </p>
                         </div>
 
@@ -128,7 +120,7 @@
                                 class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                             />
                             <p class="text-xs text-gray-500 mt-1">
-                                🏷️ Font size: 6px (เล็กและเหมาะสม)
+                                🏷️ Font size: 8px (เล็กและเหมาะสม)
                             </p>
                         </div>
 
@@ -143,8 +135,7 @@
                             />
                             <p class="text-xs text-gray-500 mt-1">
                                 🖼️ ดึงอัตโนมัติจาก Web Link หรือใส่ URL เต็ม / ชื่อไฟล์ใน GitHub<br/>
-                                <span class="text-orange-600">⚠️ รูปจาก scbeic.com มีปัญหา CORS - แนะนำให้ดาวน์โหลดแล้วอัปโหลดใหม่</span><br/>
-                                <span class="text-purple-600">✨ หรือกดปุ่ม 🎨 ด้านบนเพื่อให้ AI สร้างรูปให้อัตโนมัติ</span>
+                                <span class="text-orange-600">⚠️ รูปจาก scbeic.com มีปัญหา CORS - แนะนำให้ดาวน์โหลดแล้วอัปโหลดใหม่</span>
                             </p>
                         </div>
 
@@ -205,7 +196,7 @@
                         </button>
                     </div>
                     <div class="flex justify-center">
-                        <div id="previewCard" class="w-full max-w-sm bg-white overflow-hidden" style="border: none; outline: none; box-shadow: none; margin: 0; padding: 0;">
+                        <div id="previewCard" class="w-full max-w-sm bg-white border border-gray-200 rounded-lg overflow-hidden shadow-md">
                             <!-- Preview will be rendered here -->
                         </div>
                     </div>
@@ -413,7 +404,7 @@
                                     "label": "Read more",
                                     "uri": getWebLinkWithUTM(data.weblink)
                                 },
-                                "color": "#321A5A"
+                                "color": "#6B46C1"
                             },
                             {
                                 "type": "button",
@@ -445,36 +436,36 @@
             const imageUrl = getImageUrl(data.image);
 
             const html = `
-                <div id="imagePreviewSection" style="position: relative; width: 100%; padding-top: 70%; overflow: hidden; border: none; outline: none; margin: 0; padding-left: 0; padding-right: 0; padding-bottom: 0; background-color: #ffffff; box-sizing: border-box;">
+                <div id="imagePreviewSection" class="relative h-64 bg-gray-100">
                     ${imageUrl !== '[image]' ? `
                         <img 
                             src="${imageUrl}"
                             alt="${data.title}"
-                            style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; border: none; outline: none; display: block; margin: 0; padding: 0;"
+                            class="absolute inset-0 w-full h-full object-cover"
                             crossorigin="anonymous"
-                            onerror="this.style.display='none'; this.parentElement.innerHTML='<div style=\\'position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; color: #9ca3af;\\'>Image Preview</div>';"
+                            onerror="this.style.display='none'; this.parentElement.innerHTML='<div class=\\'absolute inset-0 flex items-center justify-center text-gray-400\\'>Image Preview</div>';"
                         />
                         <!-- Gradient Overlay (50% from bottom, 90% to 0%) -->
-                        <div style="position: absolute; bottom: 0; left: 0; right: 0; width: 100%; height: 50%; background: linear-gradient(to top, rgba(0, 0, 0, 0.9) 0%, rgba(0, 0, 0, 0) 100%); border: none; outline: none; margin: 0; padding: 0;"></div>
+                        <div class="absolute bottom-0 left-0 right-0 h-[50%] bg-gradient-to-t from-black/90 to-transparent"></div>
                         <!-- Logo at Top Left (aligned with body padding) -->
-                        <div style="position: absolute; top: 0; left: 20px; width: 80px; padding-top: 16px; border: none; outline: none; margin: 0;">
-                            <img src="https://phanumard.github.io/burave/eic-logo-black.png" alt="EIC Logo" style="width: 100%; border: none; outline: none; display: block; margin: 0; padding: 0;" crossorigin="anonymous" />
+                        <div class="absolute top-0 left-5 w-20 pt-4">
+                            <img src="https://phanumard.github.io/burave/eic-logo-black.png" alt="EIC Logo" class="w-full" crossorigin="anonymous" />
                         </div>
                         <!-- Title Text at Bottom Left (aligned with body padding) - ขยับลงมาเล็กน้อย -->
-                        <div style="position: absolute; bottom: 18px; left: 20px; right: 20px; border: none; outline: none; margin: 0; padding: 0;">
-                            <p class="font-kanit" style="color: #ffffff; font-size: ${fontSize}px; line-height: 1.3; font-weight: 500; white-space: pre-line; border: none; outline: none; margin: 0; padding: 0;">
+                        <div class="absolute bottom-[18px] left-5 right-5">
+                            <p class="font-kanit text-white" style="font-size: ${fontSize}px; line-height: 1.3; font-weight: 500; white-space: pre-line;">
                                 ${data.title}
                             </p>
                             ${data.cat_title ? `
-                                <div style="margin-top: 8px; border: none; outline: none; padding: 0;">
-                                    <p style="color: #ffffff; font-size: 6px; font-weight: 400; opacity: 0.9; border: none; outline: none; margin: 0; padding: 0;">
+                                <div class="mt-2">
+                                    <p class="text-white" style="font-size: 8px; font-weight: 400; opacity: 0.9;">
                                         ${data.cat_title}
                                     </p>
                                 </div>
                             ` : ''}
                         </div>
                     ` : `
-                        <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; color: #9ca3af;">
+                        <div class="absolute inset-0 flex items-center justify-center text-gray-400">
                             Image Preview
                         </div>
                     `}
@@ -873,88 +864,6 @@
             console.log('✅ Cleared all line breaks');
         }
         
-        // ===== AI IMAGE GENERATION FUNCTION =====
-        
-        async function generateAICover() {
-            const button = document.getElementById('btnGenerateAI');
-            const titleInput = document.getElementById('title');
-            const descriptionInput = document.getElementById('keysum');
-            const imageInput = document.getElementById('image');
-            
-            // Get title and description
-            const title = titleInput.value.trim();
-            const description = descriptionInput.value.trim();
-            
-            if (!title && !description) {
-                alert('กรุณากรอก Title หรือ Key Summary ก่อนเพื่อให้ AI สร้างรูป');
-                return;
-            }
-            
-            try {
-                // Disable button and show loading
-                button.disabled = true;
-                button.textContent = '⏳';
-                
-                // Add debug message
-                addDebugMessage('🎨 กำลังสร้างรูปด้วย AI...', 'info');
-                
-                // Create prompt for AI (in English for better results)
-                let prompt = '';
-                
-                // Translate key terms to English for better AI results
-                const titleForAI = title.replace(/\n/g, ' ');
-                const descForAI = description.substring(0, 200); // Limit description length
-                
-                // Build prompt
-                if (titleForAI && descForAI) {
-                    prompt = `Professional business illustration about: ${titleForAI}. ${descForAI}. Modern, clean, corporate style, suitable for economic report cover`;
-                } else if (titleForAI) {
-                    prompt = `Professional business illustration about: ${titleForAI}. Modern, clean, corporate style, suitable for economic report cover`;
-                } else {
-                    prompt = `Professional business illustration about: ${descForAI}. Modern, clean, corporate style, suitable for economic report cover`;
-                }
-                
-                // Add photography style keywords for better results
-                prompt += ', high quality, professional photography, business concept, abstract';
-                
-                console.log('🎨 AI Prompt:', prompt);
-                
-                // URL encode the prompt
-                const encodedPrompt = encodeURIComponent(prompt);
-                
-                // Generate image URL using Pollinations.ai
-                // This service is free and doesn't require API key
-                const imageUrl = `https://image.pollinations.ai/prompt/${encodedPrompt}?width=1200&height=840&nologo=true&enhance=true`;
-                
-                console.log('🖼️ Generated Image URL:', imageUrl);
-                
-                // Set the image URL
-                imageInput.value = imageUrl;
-                
-                // Update outputs to show the new image
-                updateOutputs();
-                
-                // Show success message
-                addDebugMessage('✅ สร้างรูปด้วย AI สำเร็จ!', 'success');
-                
-                // Reset button after a short delay
-                setTimeout(() => {
-                    button.disabled = false;
-                    button.textContent = '🎨';
-                }, 1500);
-                
-            } catch (error) {
-                console.error('❌ AI Generation error:', error);
-                addDebugMessage('❌ เกิดข้อผิดพลาดในการสร้างรูป: ' + error.message, 'error');
-                
-                // Reset button
-                button.disabled = false;
-                button.textContent = '🎨';
-                
-                alert('ไม่สามารถสร้างรูปด้วย AI ได้\nกรุณาลองอีกครั้ง');
-            }
-        }
-        
         // ===== EXPORT IMAGE FUNCTION =====
         
         // Export เฉพาะส่วน Image เป็นไฟล์รูป
@@ -964,17 +873,6 @@
             if (!imageSection) {
                 alert('ไม่พบส่วน preview ที่จะ export');
                 return;
-            }
-            
-            // Remove any borders from parent elements temporarily
-            const previewCard = document.getElementById('previewCard');
-            const originalCardStyle = previewCard ? previewCard.getAttribute('style') : null;
-            if (previewCard) {
-                previewCard.style.border = 'none';
-                previewCard.style.outline = 'none';
-                previewCard.style.boxShadow = 'none';
-                previewCard.style.padding = '0';
-                previewCard.style.margin = '0';
             }
             
             // Check if there's an image
@@ -1033,7 +931,7 @@
                 
                 // Use html2canvas to capture the element
                 const canvas = await html2canvas(imageSection, {
-                    backgroundColor: '#ffffff', // White background
+                    backgroundColor: null,
                     scale: 4, // Very high quality (4x resolution)
                     useCORS: true, // Enable CORS for external images
                     allowTaint: false, // Don't allow tainted canvas for better CORS handling
@@ -1041,50 +939,17 @@
                     imageTimeout: 0, // No timeout since we already waited
                     foreignObjectRendering: false, // Better compatibility
                     proxy: null, // Disable proxy
-                    removeContainer: true, // Clean up after rendering
                     onclone: function(clonedDoc) {
                         console.log('🎨 Cloning document for canvas...');
                         const clonedSection = clonedDoc.getElementById('imagePreviewSection');
                         if (clonedSection) {
                             console.log('✅ Cloned section found');
                             
-                            // Get the actual width and calculate height based on 20:14 aspect ratio
-                            const actualWidth = imageSection.offsetWidth;
-                            const aspectHeight = Math.round(actualWidth * 14 / 20); // 20:14 ratio
-                            
-                            console.log('📐 Calculated dimensions:', actualWidth, 'x', aspectHeight);
-                            
-                            // Set exact dimensions with aspect ratio 20:14
-                            clonedSection.style.position = 'relative';
-                            clonedSection.style.width = actualWidth + 'px';
-                            clonedSection.style.height = aspectHeight + 'px';
-                            clonedSection.style.paddingTop = '0';
-                            clonedSection.style.margin = '0';
-                            clonedSection.style.padding = '0';
-                            clonedSection.style.border = 'none';
-                            clonedSection.style.outline = 'none';
-                            clonedSection.style.boxShadow = 'none';
-                            clonedSection.style.overflow = 'hidden';
-                            clonedSection.style.boxSizing = 'border-box';
-                            clonedSection.style.backgroundColor = '#ffffff';
-                            
-                            // Handle all child elements
-                            const allElements = clonedSection.getElementsByTagName('*');
-                            Array.from(allElements).forEach(el => {
-                                el.style.border = 'none';
-                                el.style.outline = 'none';
-                                el.style.boxShadow = 'none';
-                            });
-                            
                             // Handle images with CORS issues
                             const clonedImages = clonedSection.getElementsByTagName('img');
                             Array.from(clonedImages).forEach(img => {
+                                // Add crossorigin attribute to help with CORS
                                 img.crossOrigin = 'anonymous';
-                                img.style.display = 'block';
-                                img.style.border = 'none';
-                                img.style.outline = 'none';
-                                img.style.margin = '0';
-                                img.style.padding = '0';
                                 console.log('🔒 Set crossOrigin for image:', img.src);
                             });
                         }
@@ -1188,9 +1053,6 @@
                     buttonIcon.setAttribute('data-lucide', 'download');
                     lucide.createIcons();
                 }
-            } finally {
-                // Restore original styles (if needed in the future)
-                // For now, we keep the clean style since it's better for display
             }
         }
         
@@ -1207,8 +1069,6 @@
                 fetchMetadata(url);
             }
         });
-
-        document.getElementById('btnGenerateAI').addEventListener('click', generateAICover);
 
         document.getElementById('title').addEventListener('input', updateOutputs);
         
